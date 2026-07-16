@@ -25,10 +25,8 @@ app.use(
       "http://localhost:5173",
       "http://localhost:5174",
       "http://localhost:3000",
-      "http://192.168.1.239:5173",
-      "http://192.168.1.239:5174",
-      "https://zms-web-xi.vercel.app",
-      
+      "https://zms-next.onrender.com",
+      "https://zms-backend.onrender.com",
     ],
     credentials: true,
   })

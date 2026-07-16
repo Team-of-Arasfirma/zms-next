@@ -4,19 +4,19 @@ import { motion } from "framer-motion";
 
 const applications = [
   {
-    image: "/applications/ground-mounted.jpg",
+    image: "/public/ground-mounted.jpg",
     title: "Ground Mounted",
     description:
       "Heavy-duty ground mounting systems for large-scale solar farms and open land installations with adjustable tilt angles.",
   },
   {
-    image: "/applications/rooftop-mounted.jpg",
+    image: "/public/rooftop-mounted.jpg",
     title: "Rooftop Mounted",
     description:
       "Ideal for commercial and residential rooftops. Lightweight, corrosion-resistant galvanized steel frames engineered for any roof angle.",
   },
   {
-    image: "/applications/newproject.jpg",
+    image: "/public/newproject.jpg",
     title: "New Project",
     description:
       "Planning a new solar or industrial structure project? Our team designs and delivers custom steel solutions from scratch.",
