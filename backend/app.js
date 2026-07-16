@@ -27,8 +27,7 @@ app.use(
       "http://localhost:3000",
       "http://192.168.1.239:5173",
       "http://192.168.1.239:5174",
-      "https://zms-web-1.onrender.com",
-      "https://zms-web.onrender.com",
+      "https://zms-backend.onrender.com"
     ],
     credentials: true,
   })
