@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display&family=Lato:wght@400;700&family=Poppins:wght@300;400;500;600;700;800&family=Sarpanch:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+}
+
+/* Client logo scrolling animations */
+@keyframes clientScrollLeftToRight {
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes clientScrollRightToLeft {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.client-scroll-left-to-right {
+  animation: clientScrollLeftToRight 24s linear infinite;
+}
+
+.client-scroll-right-to-left {
+  animation: clientScrollRightToLeft 24s linear infinite;
+}
+
+.client-row-wrapper:hover .client-scroll-left-to-right,
+.client-row-wrapper:hover .client-scroll-right-to-left {
+  animation-play-state: paused;
+}
+
+/* Hero entry animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
