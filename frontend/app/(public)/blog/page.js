@@ -1,6 +1,8 @@
 import BlogCards from "@/components/Blog/BlogCards";
 import BlogHero from "@/components/Blog/BlogHero";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Blogs",
   description:
