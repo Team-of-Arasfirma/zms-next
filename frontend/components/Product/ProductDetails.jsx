@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
@@ -12,6 +13,18 @@ const initialQuoteForm = {
   gstNumber: "",
   mountType: "",
   mw: "",
+};
+
+const normalizeImageSrc = (src) => {
+  if (!src) {
+    return "";
+  }
+
+  if (/^(https?:|data:|blob:|\/)/.test(src)) {
+    return src;
+  }
+
+  return `/${src}`;
 };
 
 const ProductDetails = () => {
@@ -177,6 +190,7 @@ const ProductDetails = () => {
           <div className="space-y-20 lg:space-y-24">
             {products.map((product, index) => {
               const isReverse = index % 2 !== 0;
+              const imageSrc = normalizeImageSrc(product.image);
 
               return (
                 <div
@@ -192,12 +206,19 @@ const ProductDetails = () => {
                     viewport={{ once: true, amount: 0.3 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                   >
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      loading="lazy"
-                      className="h-full min-h-[420px] w-full rounded-[10px] object-contain object-center lg:min-h-[620px]"
-                    />
+                    <div className="relative h-[420px] min-h-[420px] w-full lg:h-[620px] lg:min-h-[620px]">
+                      {imageSrc ? (
+                        <Image
+                          src={imageSrc}
+                          alt={product.name}
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 50vw"
+                          loading="lazy"
+                          quality={70}
+                          className="rounded-[10px] object-contain object-center"
+                        />
+                      ) : null}
+                    </div>
                   </motion.div>
 
                   {/* Product content */}
@@ -280,7 +301,7 @@ const ProductDetails = () => {
               onClick={closeQuoteModal}
               className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-2xl leading-none text-[#1d2b3a] transition hover:bg-gray-200"
             >
-              ×
+              Ã—
             </button>
 
             <h2

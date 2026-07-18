@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
@@ -41,6 +42,18 @@ export default function PrestigiousClients() {
   }, []);
 
   const scrollingClients = [...clients, ...clients];
+
+  const normalizeImageSrc = (src) => {
+    if (!src) {
+      return "";
+    }
+
+    if (/^(https?:|data:|blob:|\/)/.test(src)) {
+      return src;
+    }
+
+    return `/${src}`;
+  };
 
   if (!loading && clients.length === 0) {
     return null;
@@ -87,35 +100,55 @@ export default function PrestigiousClients() {
           <div className="mt-12 space-y-6">
             <div className="client-row-wrapper relative overflow-hidden">
               <div className="client-scroll-left-to-right flex w-max gap-6">
-                {scrollingClients.map((client, index) => (
-                  <div
-                    key={`top-${client._id}-${index}`}
-                    className="group flex h-[110px] w-[200px] shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[#e5e5e5] bg-white shadow-[0_8px_18px_rgba(0,0,0,0.08)] sm:h-[125px] sm:w-[225px] md:h-[135px] md:w-[240px]"
-                  >
-                    <img
-                      src={client.logo}
-                      alt={client.clientName || "Client Logo"}
-                      className="h-[75px] w-[150px] object-contain transition-transform duration-300 group-hover:scale-105 sm:h-[85px] sm:w-[170px] md:h-[90px] md:w-[185px]"
-                    />
-                  </div>
-                ))}
+                {scrollingClients.map((client, index) => {
+                  const logo = normalizeImageSrc(client.logo);
+
+                  return (
+                    <div
+                      key={`top-${client._id}-${index}`}
+                      className="group flex h-[110px] w-[200px] shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[#e5e5e5] bg-white shadow-[0_8px_18px_rgba(0,0,0,0.08)] sm:h-[125px] sm:w-[225px] md:h-[135px] md:w-[240px]"
+                    >
+                      {logo ? (
+                        <Image
+                          src={logo}
+                          alt={client.clientName || "Client Logo"}
+                          width={185}
+                          height={90}
+                          loading="lazy"
+                          quality={70}
+                          className="h-auto w-auto max-h-[90px] max-w-[185px] object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-[95px] sm:max-w-[170px] md:max-h-[100px] md:max-w-[185px]"
+                        />
+                      ) : null}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             <div className="client-row-wrapper relative overflow-hidden">
               <div className="client-scroll-right-to-left flex w-max gap-6">
-                {scrollingClients.map((client, index) => (
-                  <div
-                    key={`bottom-${client._id}-${index}`}
-                    className="group flex h-[110px] w-[200px] shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[#e5e5e5] bg-white shadow-[0_8px_18px_rgba(0,0,0,0.08)] sm:h-[125px] sm:w-[225px] md:h-[135px] md:w-[240px]"
-                  >
-                    <img
-                      src={client.logo}
-                      alt={client.clientName || "Client Logo"}
-                      className="h-[75px] w-[150px] object-contain transition-transform duration-300 group-hover:scale-105 sm:h-[85px] sm:w-[170px] md:h-[90px] md:w-[185px]"
-                    />
-                  </div>
-                ))}
+                {scrollingClients.map((client, index) => {
+                  const logo = normalizeImageSrc(client.logo);
+
+                  return (
+                    <div
+                      key={`bottom-${client._id}-${index}`}
+                      className="group flex h-[110px] w-[200px] shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[#e5e5e5] bg-white shadow-[0_8px_18px_rgba(0,0,0,0.08)] sm:h-[125px] sm:w-[225px] md:h-[135px] md:w-[240px]"
+                    >
+                      {logo ? (
+                        <Image
+                          src={logo}
+                          alt={client.clientName || "Client Logo"}
+                          width={185}
+                          height={90}
+                          loading="lazy"
+                          quality={70}
+                          className="h-auto w-auto max-h-[90px] max-w-[185px] object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-[95px] sm:max-w-[170px] md:max-h-[100px] md:max-w-[185px]"
+                        />
+                      ) : null}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

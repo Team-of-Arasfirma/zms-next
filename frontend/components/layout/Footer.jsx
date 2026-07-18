@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 
 function Footer() {
@@ -6,15 +6,19 @@ function Footer() {
     <footer className="w-full bg-[#1d2b3a] text-white">
       <div className="mx-auto max-w-[1180px] px-5 pb-4 pt-12">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-4 md:gap-14">
-          {/* Logo + Social */}
+          {/* Logo and social links */}
           <div className="flex flex-col items-start">
-            <Link href="/">
+            <Link
+              href="/"
+              aria-label="Go to ZMS home page"
+              className="block w-[170px]"
+            >
               <Image
                 src="/logo/white.svg"
                 alt="Zaron Metal Sections"
                 width={170}
                 height={100}
-                loading="eager"
+                loading="lazy"
                 className="h-auto w-full object-contain"
               />
             </Link>
@@ -39,6 +43,7 @@ function Footer() {
                   strokeLinejoin="round"
                 >
                   <path d="M3 21l1.6-5.8A8.5 8.5 0 1 1 8.8 19L3 21z" />
+
                   <path d="M8.5 8.5c.2 3 3 5.8 6 6l1.5-1.5c.2-.2.2-.5 0-.7l-1.2-1.2c-.2-.2-.5-.2-.7 0l-.8.8c-1.3-.5-2.4-1.6-2.9-2.9l.8-.8c.2-.2.2-.5 0-.7L10 6.3c-.2-.2-.5-.2-.7 0L8.5 8.5z" />
                 </svg>
               </a>
@@ -61,8 +66,17 @@ function Footer() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                  <rect
+                    x="2"
+                    y="2"
+                    width="20"
+                    height="20"
+                    rx="5"
+                    ry="5"
+                  />
+
                   <path d="M16 11.37A4 4 0 1 1 12.63 8A4 4 0 0 1 16 11.37z" />
+
                   <path d="M17.5 6.5h.01" />
                 </svg>
               </a>
@@ -97,6 +111,7 @@ function Footer() {
                   strokeLinejoin="round"
                 >
                   <rect x="2" y="5" width="20" height="14" rx="4" />
+
                   <path d="M10 9l5 3-5 3V9z" />
                 </svg>
               </a>
@@ -202,7 +217,13 @@ function Footer() {
                     fill="currentColor"
                   >
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-                    <circle cx="12" cy="9" r="2.5" fill="#1d2b3a" />
+
+                    <circle
+                      cx="12"
+                      cy="9"
+                      r="2.5"
+                      fill="#1d2b3a"
+                    />
                   </svg>
                 </span>
 
@@ -232,7 +253,14 @@ function Footer() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <rect
+                      x="3"
+                      y="5"
+                      width="18"
+                      height="14"
+                      rx="2"
+                    />
+
                     <path d="M3 7l9 6 9-6" />
                   </svg>
                 </span>
@@ -284,7 +312,7 @@ function Footer() {
 
         {/* Copyright */}
         <div className="mt-9 border-t border-white/10 pt-4 text-center font-['Poppins'] text-[12px] text-white/80">
-          � Copyright 2026. All Rights Reserved.
+          © Copyright 2026. All Rights Reserved.
         </div>
       </div>
     </footer>

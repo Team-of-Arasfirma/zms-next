@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import Image from "next/image";
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -31,12 +32,17 @@ const CertificationAwards = () => {
           <div className="mt-4 h-[3px] w-[64px] rounded-full bg-[#ff6b2c]" />
 
           <div className="mt-8 flex h-[520px] items-center justify-center">
-            <img
-              src="/about/iso-certificate.jpg"
-              alt="ISO Certifications and Compliance"
-              loading="lazy"
-              className="h-full w-full object-contain"
-            />
+            <div className="relative h-full w-full">
+              <Image
+                src="/about/iso-certificate.jpg"
+                alt="ISO Certifications and Compliance"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                loading="lazy"
+                quality={70}
+                className="object-contain"
+              />
+            </div>
           </div>
         </motion.div>
 
@@ -64,12 +70,17 @@ const CertificationAwards = () => {
           <div className="mt-4 h-[3px] w-[64px] rounded-full bg-[#ff6b2c]" />
 
           <div className="mt-8 flex h-[520px] items-center justify-center">
-            <img
-              src="/about/iso-certificate.jpg"
-              alt="Awards and Achievements"
-              loading="lazy"
-              className="h-full w-full object-contain"
-            />
+            <div className="relative h-full w-full">
+              <Image
+                src="/about/iso-certificate.jpg"
+                alt="Awards and Achievements"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                loading="lazy"
+                quality={70}
+                className="object-contain"
+              />
+            </div>
           </div>
         </motion.div>
       </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -46,7 +46,7 @@ export default function Navbar() {
             alt="ZMS Logo"
             width={200}
             height={100}
-            priority
+            loading="eager"
             className="h-10 w-auto object-contain sm:h-12 md:h-14"
           />
         </Link>
@@ -88,7 +88,7 @@ export default function Navbar() {
                 : "text-[30px] leading-none"
             }
           >
-            {open ? "�" : "?"}
+            {open ? "ï¿½" : "?"}
           </span>
         </button>
       </nav>

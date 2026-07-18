@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import Image from "next/image";
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -55,19 +56,29 @@ const CompanyOverview = () => {
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.9, ease: "easeOut" }}
         >
-          <img
-            src="/about/factory.jpg"
-            alt="ZMS factory overview"
-            loading="lazy"
-            className="absolute right-0 top-0 z-10 aspect-video w-full max-w-[560px] rounded-[22px] object-cover object-center shadow-sm"
-          />
+          <div className="absolute right-0 top-0 z-10 aspect-video w-full max-w-[560px] overflow-hidden rounded-[22px] shadow-sm">
+            <Image
+              src="/about/factory.jpg"
+              alt="ZMS factory overview"
+              fill
+              sizes="(max-width: 1024px) 100vw, 560px"
+              loading="lazy"
+              quality={70}
+              className="object-cover object-center"
+            />
+          </div>
 
-          <img
-            src="/about/building.jpg"
-            alt="ZMS manufacturing unit"
-            loading="lazy"
-            className="absolute bottom-0 left-0 z-20 aspect-video w-[72%] max-w-[360px] rounded-[22px] object-cover object-center shadow-lg lg:left-[-10px]"
-          />
+          <div className="absolute bottom-0 left-0 z-20 aspect-video w-[72%] max-w-[360px] overflow-hidden rounded-[22px] shadow-lg lg:left-[-10px]">
+            <Image
+              src="/about/building.jpg"
+              alt="ZMS manufacturing unit"
+              fill
+              sizes="(max-width: 1024px) 72vw, 360px"
+              loading="lazy"
+              quality={70}
+              className="object-cover object-center"
+            />
+          </div>
         </motion.div>
       </div>
     </section>

@@ -1,22 +1,23 @@
-"use client";
+﻿"use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 const applications = [
   {
-    image: "/public/ground-mounted.jpg",
+    image: "/applications/ground-mounted.jpg",
     title: "Ground Mounted",
     description:
       "Heavy-duty ground mounting systems for large-scale solar farms and open land installations with adjustable tilt angles.",
   },
   {
-    image: "/public/rooftop-mounted.jpg",
+    image: "/applications/rooftop-mounted.jpg",
     title: "Rooftop Mounted",
     description:
       "Ideal for commercial and residential rooftops. Lightweight, corrosion-resistant galvanized steel frames engineered for any roof angle.",
   },
   {
-    image: "/public/newproject.jpg",
+    image: "/applications/newproject.jpg",
     title: "New Project",
     description:
       "Planning a new solar or industrial structure project? Our team designs and delivers custom steel solutions from scratch.",
@@ -104,19 +105,27 @@ export default function Applications() {
               className="group min-h-[360px] w-full max-w-[320px] overflow-hidden rounded-[12px] bg-white p-6 shadow-[0_18px_35px_rgba(0,0,0,0.08)]"
             >
               <div className="relative h-[170px] w-full overflow-hidden rounded-[8px] bg-[#f7f7f7]">
-                <motion.img
-                  src={item.image}
-                  alt={item.title}
-                  className={`pointer-events-none h-full w-full object-cover ${
-                    item.comingSoon ? "blur-[2px] brightness-[0.75]" : ""
-                  }`}
+                <motion.div
+                  className="absolute inset-0"
                   whileHover={{
                     scale: 1.08,
                     transition: {
                       duration: 0.25,
                     },
                   }}
-                />
+                >
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    loading="lazy"
+                    quality={70}
+                    className={`pointer-events-none object-cover ${
+                      item.comingSoon ? "blur-[2px] brightness-[0.75]" : ""
+                    }`}
+                  />
+                </motion.div>
 
                 {item.comingSoon && (
                   <div className="absolute inset-0 flex items-center justify-center">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import JoditEditor from "jodit-react";
 import { hasPermission } from "../utils/permissions";
 
@@ -567,9 +568,11 @@ const handleEdit = async (blog) => {
                   </td>
 
                   <td className="px-4 py-4">
-                    <img
+                    <Image
                       src={blog.coverImage}
                       alt={blog.title}
+                      width={96}
+                      height={56}
                       className="h-14 w-24 rounded-lg object-cover"
                     />
                   </td>
@@ -767,7 +770,7 @@ const handleEdit = async (blog) => {
                 </div>
 
                 <p className="mt-2 text-xs text-gray-500">
-                  Recommended size: 1200 × 700px.
+                  Recommended size: 1200 ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â 700px.
                   Max file size: 10MB. JPG, PNG,
                   WEBP only.
                 </p>
@@ -829,7 +832,7 @@ const handleEdit = async (blog) => {
                     </p>
 
                     <p className="text-xs text-green-700">
-                      zmsipl.com › blog ›{" "}
+                      zmsipl.com ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âº blog ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âº{" "}
                       {formData.slug ||
                         "blog-slug"}
                     </p>

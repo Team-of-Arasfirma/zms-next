@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -19,6 +20,18 @@ export default function LatestProjects() {
       project.thumbnail ||
       ""
     );
+  };
+
+  const normalizeImageSrc = (src) => {
+    if (!src) {
+      return "";
+    }
+
+    if (/^(https?:|data:|blob:|\/)/.test(src)) {
+      return src;
+    }
+
+    return `/${src}`;
   };
 
   useEffect(() => {
@@ -100,46 +113,54 @@ export default function LatestProjects() {
 
         {!loading && projects.length > 0 && (
           <div className="mt-10 grid grid-cols-1 gap-7 md:grid-cols-3">
-            {projects.map((project, index) => (
-              <motion.div
-                key={project._id || index}
-                initial={{ opacity: 0, y: 45, scale: 0.96 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  duration: 0.65,
-                  delay: index * 0.12,
-                  ease: "easeOut",
-                }}
-                viewport={{ once: true }}
-                whileHover={{
-                  y: -8,
-                  transition: {
-                    duration: 0.15,
-                    ease: "easeOut",
-                  },
-                }}
-                className="group overflow-hidden rounded-[12px] border border-[#ff9b6a] bg-white p-3 shadow-[0_10px_22px_rgba(0,0,0,0.10)]"
-              >
-                <div className="aspect-[4/3] w-full overflow-hidden rounded-[8px] bg-white">
-                  {getProjectImage(project) ? (
-                    <img
-                      src={getProjectImage(project)}
-                      alt={project.title || project.projectName || "Project"}
-                      className="h-full w-full object-cover object-center transition duration-300 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gray-100 font-['Poppins'] text-sm text-gray-500">
-                      No Image
-                    </div>
-                  )}
-                </div>
+            {projects.map((project, index) => {
+              const projectImage = normalizeImageSrc(getProjectImage(project));
 
-                <h3 className="mt-4 font-['Poppins'] text-[18px] font-medium text-[#111]">
-                  {project.title || project.projectName || "Project"}
-                  {project.capacity ? ` - ${project.capacity}` : ""}
-                </h3>
-              </motion.div>
-            ))}
+              return (
+                <motion.div
+                  key={project._id || index}
+                  initial={{ opacity: 0, y: 45, scale: 0.96 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{
+                    duration: 0.65,
+                    delay: index * 0.12,
+                    ease: "easeOut",
+                  }}
+                  viewport={{ once: true }}
+                  whileHover={{
+                    y: -8,
+                    transition: {
+                      duration: 0.15,
+                      ease: "easeOut",
+                    },
+                  }}
+                  className="group overflow-hidden rounded-[12px] border border-[#ff9b6a] bg-white p-3 shadow-[0_10px_22px_rgba(0,0,0,0.10)]"
+                >
+                  <div className="aspect-[4/3] w-full overflow-hidden rounded-[8px] bg-white">
+                    {projectImage ? (
+                      <Image
+                        src={projectImage}
+                        alt={project.title || project.projectName || "Project"}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        loading="lazy"
+                        quality={70}
+                        className="object-cover object-center transition duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gray-100 font-['Poppins'] text-sm text-gray-500">
+                        No Image
+                      </div>
+                    )}
+                  </div>
+
+                  <h3 className="mt-4 font-['Poppins'] text-[18px] font-medium text-[#111]">
+                    {project.title || project.projectName || "Project"}
+                    {project.capacity ? ` - ${project.capacity}` : ""}
+                  </h3>
+                </motion.div>
+              );
+            })}
           </div>
         )}
 
@@ -151,7 +172,7 @@ export default function LatestProjects() {
             View All Projects
 
             <span className="text-[24px] leading-none transition-transform duration-200 group-hover:translate-x-2">
-              →
+              â†’
             </span>
           </Link>
         </div>

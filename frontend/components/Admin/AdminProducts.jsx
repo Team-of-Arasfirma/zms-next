@@ -1,4 +1,6 @@
 "use client";
+
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { hasPermission } from "../utils/permissions";
 
@@ -439,9 +441,11 @@ const AdminProducts = () => {
                   </td>
 
                   <td className="px-4 py-4">
-                    <img
+                    <Image
                       src={product.image}
                       alt={product.name}
+                      width={96}
+                      height={56}
                       className="h-14 w-24 rounded-lg object-cover"
                     />
                   </td>

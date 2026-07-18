@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 const leaders = [
@@ -68,10 +69,14 @@ export default function IndustryLeaders() {
               }}
               className="group flex h-[150px] items-center justify-center overflow-hidden rounded-[12px] border border-[#ff9b6a] bg-white p-5 shadow-[0_10px_22px_rgba(0,0,0,0.10)] md:h-[170px]"
             >
-              <img
+              <Image
                 src={leader.logo}
                 alt={leader.name}
-                className="max-h-[90px] max-w-[150px] object-contain transition-transform duration-300 group-hover:scale-105 sm:max-w-[170px] md:max-w-[190px]"
+                width={190}
+                height={90}
+                loading="lazy"
+                quality={70}
+                className="h-auto w-auto max-h-[90px] max-w-[150px] object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-[90px] sm:max-w-[170px] md:max-h-[90px] md:max-w-[190px]"
               />
             </motion.div>
           ))}

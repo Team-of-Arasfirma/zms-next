@@ -1,7 +1,9 @@
+import mongoose from "mongoose";
 import Career from "../models/careerModel.js";
 
 const normalizeStatus = (status) => {
   const allowedStatuses = ["Active", "Draft"];
+
   return allowedStatuses.includes(status) ? status : "Active";
 };
 
@@ -24,7 +26,8 @@ export const createCareer = async (req, res) => {
 
     if (!jobTitle || !department || !location || !description) {
       return res.status(400).json({
-        message: "Job title, department, location, and description are required",
+        message:
+          "Job title, department, location, and description are required",
       });
     }
 
@@ -59,7 +62,9 @@ export const createCareer = async (req, res) => {
 // Get all job posts.
 export const getCareers = async (req, res) => {
   try {
-    const careers = await Career.find().sort({ createdAt: -1 });
+    const careers = await Career.find().sort({
+      createdAt: -1,
+    });
 
     return res.status(200).json(careers);
   } catch (error) {
@@ -72,10 +77,49 @@ export const getCareers = async (req, res) => {
   }
 };
 
+// Get one job post by ID.
+export const getCareerById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Prevent Mongoose CastError for invalid IDs.
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Invalid job ID",
+      });
+    }
+
+    const career = await Career.findById(id);
+
+    if (!career) {
+      return res.status(404).json({
+        message: "Job not found",
+      });
+    }
+
+    return res.status(200).json(career);
+  } catch (error) {
+    console.error("Get Career By ID Error:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch job",
+      error: error.message,
+    });
+  }
+};
+
 // Update one job post.
 export const updateCareer = async (req, res) => {
   try {
-    const career = await Career.findById(req.params.id);
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Invalid job ID",
+      });
+    }
+
+    const career = await Career.findById(id);
 
     if (!career) {
       return res.status(404).json({
@@ -99,7 +143,8 @@ export const updateCareer = async (req, res) => {
 
     if (!jobTitle || !department || !location || !description) {
       return res.status(400).json({
-        message: "Job title, department, location, and description are required",
+        message:
+          "Job title, department, location, and description are required",
       });
     }
 
@@ -109,7 +154,8 @@ export const updateCareer = async (req, res) => {
     career.jobType = jobType?.trim() || "Full Time";
     career.experience = experience?.trim() || "";
     career.salary = salary?.trim() || "";
-    career.openPositions = openPositions?.toString().trim() || "";
+    career.openPositions =
+      openPositions?.toString().trim() || "";
     career.jobOpenDate = jobOpenDate || "";
     career.jobCloseDate = jobCloseDate || "";
     career.description = description.trim();
@@ -134,7 +180,15 @@ export const updateCareer = async (req, res) => {
 // Delete one job post.
 export const deleteCareer = async (req, res) => {
   try {
-    const career = await Career.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Invalid job ID",
+      });
+    }
+
+    const career = await Career.findByIdAndDelete(id);
 
     if (!career) {
       return res.status(404).json({

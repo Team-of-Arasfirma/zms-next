@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 const advantages = [
@@ -125,10 +126,7 @@ const Advantage = () => {
                 }}
                 className="relative z-10 mb-5 flex h-[46px] w-[46px] items-center justify-center rounded-[7px] bg-[#fff7f3]"
               >
-                <motion.img
-                  src={item.icon}
-                  alt={item.title}
-                  className="h-[20px] w-[20px] object-contain"
+                <motion.div
                   animate={{
                     y: [0, -3, 0],
                   }}
@@ -137,7 +135,18 @@ const Advantage = () => {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                />
+                  className="relative h-[20px] w-[20px]"
+                >
+                  <Image
+                    src={item.icon}
+                    alt={item.title}
+                    fill
+                    sizes="20px"
+                    loading="lazy"
+                    quality={70}
+                    className="object-contain"
+                  />
+                </motion.div>
               </motion.div>
 
               {/* Card heading */}

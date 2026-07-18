@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Download, FileText } from "lucide-react";
 
@@ -47,16 +48,23 @@ export default function Hero() {
         {slides.map((slide, index) => (
           <div
             key={slide.src}
-            className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out ${
+            className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
               currentSlide === index
                 ? "scale-100 opacity-100"
                 : "scale-110 opacity-0"
             }`}
-            style={{
-              backgroundImage: `url("${slide.src}")`,
-            }}
             aria-hidden={currentSlide !== index}
-          />
+          >
+            <Image
+              src={slide.src}
+              alt={slide.alt}
+              fill
+              priority={index === 0}
+              sizes="100vw"
+              quality={75}
+              className="object-cover object-center"
+            />
+          </div>
         ))}
 
         {/* Overlay */}

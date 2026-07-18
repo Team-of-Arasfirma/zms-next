@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { hasPermission } from "../utils/permissions";
 
@@ -292,9 +293,11 @@ const AdminClients = () => {
 
                   <td className="px-4 py-4">
                     {client.logo ? (
-                      <img
+                      <Image
                         src={client.logo}
                         alt={client.clientName}
+                        width={96}
+                        height={56}
                         className="h-14 w-24 rounded-lg border border-gray-100 object-contain p-2"
                       />
                     ) : (
@@ -489,3 +492,4 @@ const AdminClients = () => {
 };
 
 export default AdminClients;
+

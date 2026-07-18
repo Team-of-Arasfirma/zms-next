@@ -1,11 +1,15 @@
+﻿import Image from "next/image";
+
 function ProjectHero() {
   return (
     <section className="relative w-full h-[70vh] min-h-[480px] overflow-hidden">
       {/* Background Image */}
-      <img
+      <Image
         src="/project/chennimalai-7mw.jpg"
-        alt="ZMS Projects"
-        className="absolute inset-0 w-full h-full object-cover"
+        alt="Chennimalai 7MW project"
+        fill
+                sizes="100vw"
+        className="object-cover"
       />
 
       {/* Dark Overlay */}
@@ -51,3 +55,4 @@ function ProjectHero() {
 }
 
 export default ProjectHero;
+

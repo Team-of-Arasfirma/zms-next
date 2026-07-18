@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import Image from "next/image";
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -38,19 +39,29 @@ const Infrastructure = () => {
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.9, ease: "easeOut" }}
           >
-            <img
-              src="/about/factory.jpg"
-              alt="ZMS infrastructure"
-              loading="lazy"
-              className="absolute left-0 top-0 z-10 h-[320px] w-[62%] rounded-[8px] object-cover object-center shadow-sm sm:h-[390px]"
-            />
+            <div className="absolute left-0 top-0 z-10 h-[320px] w-[62%] overflow-hidden rounded-[8px] shadow-sm sm:h-[390px]">
+              <Image
+                src="/about/factory.jpg"
+                alt="ZMS infrastructure"
+                fill
+                sizes="(max-width: 1024px) 62vw, 390px"
+                loading="lazy"
+                quality={70}
+                className="object-cover object-center"
+              />
+            </div>
 
-            <img
-              src="/about/f-in.jpg"
-              alt="ZMS manufacturing infrastructure"
-              loading="lazy"
-              className="absolute right-0 top-[26px] z-20 h-[270px] w-[62%] rounded-[8px] object-cover object-center shadow-md sm:top-[34px] sm:h-[330px]"
-            />
+            <div className="absolute right-0 top-[26px] z-20 h-[270px] w-[62%] overflow-hidden rounded-[8px] shadow-md sm:top-[34px] sm:h-[330px]">
+              <Image
+                src="/about/f-in.jpg"
+                alt="ZMS manufacturing infrastructure"
+                fill
+                sizes="(max-width: 1024px) 62vw, 330px"
+                loading="lazy"
+                quality={70}
+                className="object-cover object-center"
+              />
+            </div>
           </motion.div>
 
           <motion.div

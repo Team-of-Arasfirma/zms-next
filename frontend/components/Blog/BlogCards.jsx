@@ -1,7 +1,20 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
+
+const normalizeImageSrc = (src) => {
+  if (!src) {
+    return "";
+  }
+
+  if (/^(https?:|data:|blob:|\/)/.test(src)) {
+    return src;
+  }
+
+  return `/${src}`;
+};
 
 const BlogCards = ({ initialBlogs = [] }) => {
   const blogs = Array.isArray(initialBlogs)
@@ -35,52 +48,62 @@ const BlogCards = ({ initialBlogs = [] }) => {
           </p>
         ) : (
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {blogs.map((blog, index) => (
-              <motion.div
-                key={blog._id}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.5,
-                  delay: index * 0.15,
-                }}
-                viewport={{ once: true }}
-                className="group overflow-hidden rounded-[22px] bg-white shadow-[0_10px_35px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_45px_rgba(0,0,0,0.14)]"
-              >
-                <div className="h-[240px] w-full overflow-hidden">
-                  <img
-                    src={blog.coverImage}
-                    alt={blog.title}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                </div>
+            {blogs.map((blog, index) => {
+              const coverImage = normalizeImageSrc(blog.coverImage);
 
-                <div className="p-6">
-                  <p className="mb-3 font-[Poppins] text-sm font-medium text-[#ff6b2c]">
-                    {blog.date}
-                  </p>
+              return (
+                <motion.div
+                  key={blog._id}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: index * 0.15,
+                  }}
+                  viewport={{ once: true }}
+                  className="group overflow-hidden rounded-[22px] bg-white shadow-[0_10px_35px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_45px_rgba(0,0,0,0.14)]"
+                >
+                  <div className="relative h-[240px] w-full overflow-hidden">
+                    {coverImage ? (
+                      <Image
+                        src={coverImage}
+                        alt={blog.title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        loading="lazy"
+                        quality={70}
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    ) : null}
+                  </div>
 
-                  <h3 className="font-['DM_Serif_Display'] text-2xl leading-snug text-[#1d2b3a] transition-colors duration-300 group-hover:text-[#ff6b2c]">
-                    {blog.title}
-                  </h3>
+                  <div className="p-6">
+                    <p className="mb-3 font-[Poppins] text-sm font-medium text-[#ff6b2c]">
+                      {blog.date}
+                    </p>
 
-                  <p className="mt-4 font-[Poppins] text-sm leading-7 text-gray-600">
-                    {blog.excerpt || "Read more about this article."}
-                  </p>
+                    <h3 className="font-['DM_Serif_Display'] text-2xl leading-snug text-[#1d2b3a] transition-colors duration-300 group-hover:text-[#ff6b2c]">
+                      {blog.title}
+                    </h3>
 
-                  <Link
-                    href={`/blog/${blog.slug}`}
-                    className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#ff6b2c] px-6 py-3 font-[Poppins] text-sm font-semibold text-white transition-all duration-300 hover:bg-[#1d2b3a]"
-                  >
-                    Read More
+                    <p className="mt-4 font-[Poppins] text-sm leading-7 text-gray-600">
+                      {blog.excerpt || "Read more about this article."}
+                    </p>
 
-                    <span className="text-lg leading-none">
-                      &rarr;
-                    </span>
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
+                    <Link
+                      href={`/blog/${blog.slug}`}
+                      className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#ff6b2c] px-6 py-3 font-[Poppins] text-sm font-semibold text-white transition-all duration-300 hover:bg-[#1d2b3a]"
+                    >
+                      Read More
+
+                      <span className="text-lg leading-none">
+                        &rarr;
+                      </span>
+                    </Link>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </div>

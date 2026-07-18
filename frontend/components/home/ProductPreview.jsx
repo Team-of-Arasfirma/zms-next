@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -65,11 +66,15 @@ export default function ProductPreview() {
               viewport={{ once: true }}
               className="group overflow-hidden rounded-[22px] bg-white shadow-[0_10px_35px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_45px_rgba(0,0,0,0.14)]"
             >
-              <div className="h-[210px] overflow-hidden bg-[#f3f3f3]">
-                <img
+              <div className="relative h-[210px] overflow-hidden bg-[#f3f3f3]">
+                <Image
                   src={product.image}
                   alt={product.title}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 20vw"
+                  loading="lazy"
+                  quality={70}
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               </div>
 

@@ -1,10 +1,23 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+
+const normalizeImageSrc = (src) => {
+  if (!src) {
+    return "";
+  }
+
+  if (/^(https?:|data:|blob:|\/)/.test(src)) {
+    return src;
+  }
+
+  return `/${src}`;
+};
 
 const BlogDetails = ({ slug, initialBlog }) => {
   const [blog, setBlog] = useState(initialBlog || null);
@@ -87,14 +100,21 @@ const BlogDetails = ({ slug, initialBlog }) => {
     );
   }
 
+  const coverImage = normalizeImageSrc(blog.coverImage);
+
   return (
     <main className="min-h-screen bg-white">
       <section className="relative flex h-[420px] items-end overflow-hidden bg-[#1d2b3a] md:h-[520px]">
-        <img
-          src={blog.coverImage}
-          alt={blog.title}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+        {coverImage ? (
+          <Image
+            src={coverImage}
+            alt={blog.title}
+            fill
+            sizes="100vw"
+            quality={75}
+            className="object-cover"
+          />
+        ) : null}
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/10" />
 
@@ -103,7 +123,7 @@ const BlogDetails = ({ slug, initialBlog }) => {
             href="/blog"
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/40 px-5 py-2 font-[Poppins] text-sm font-medium text-white transition hover:bg-white hover:text-[#1d2b3a]"
           >
-            ← Back To Blogs
+            ÃƒÂ¢Ã¢â‚¬Â Ã‚Â Back To Blogs
           </Link>
 
           <p className="mb-4 font-[Poppins] text-sm font-semibold uppercase tracking-[0.2em] text-[#ff6b2c]">
@@ -130,7 +150,7 @@ const BlogDetails = ({ slug, initialBlog }) => {
               href="/blog"
               className="inline-flex items-center gap-2 rounded-full bg-[#ff6b2c] px-7 py-3 font-[Poppins] text-sm font-semibold text-white transition hover:bg-[#1d2b3a]"
             >
-              ← Back To Blog Page
+             Back To Blog Page
             </Link>
           </div>
         </div>

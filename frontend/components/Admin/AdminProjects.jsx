@@ -1,4 +1,6 @@
 "use client";
+
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { hasPermission } from "../utils/permissions";
 
@@ -384,9 +386,11 @@ const AdminProjects = () => {
                 projects.map((project) => (
                   <tr key={project._id} className="border-t border-gray-100">
                     <td className="px-5 py-4">
-                      <img
+                      <Image
                         src={project.image}
                         alt={project.title}
+                        width={96}
+                        height={64}
                         className="h-16 w-24 rounded-xl object-cover"
                       />
                     </td>
