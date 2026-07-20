@@ -2,7 +2,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 
-
 // Load environment variables.
 dotenv.config();
 
@@ -24,36 +23,50 @@ cloudinary.config({
 // Project, product, and blog image upload storage.
 export const projectStorage = new CloudinaryStorage({
   cloudinary,
-  params: async (req, file) => {
-    return {
-      folder: "ZMS/projects",
-      allowed_formats: ["jpg", "jpeg", "png", "webp"],
-      transformation: [
-        {
-          width: 1200,
-          height: 800,
-          crop: "fill",
-          quality: "auto",
-        },
-      ],
-    };
-  },
+
+  params: async () => ({
+    folder: "ZMS/projects",
+    resource_type: "image",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+
+    transformation: [
+      {
+        width: 1200,
+        height: 800,
+        crop: "fill",
+        quality: "auto",
+      },
+    ],
+  }),
 });
 
 // Resume file upload storage for job applications.
-// Resume files will be stored in Cloudinary inside ZMS/resumes folder.
 export const resumeStorage = new CloudinaryStorage({
   cloudinary,
+
   params: async (req, file) => {
+    const extension = file.originalname
+      .split(".")
+      .pop()
+      .toLowerCase();
+
     const fileNameWithoutExtension = file.originalname
-      .split(".")[0]
+      .replace(/\.[^/.]+$/, "")
+      .trim()
       .replace(/\s+/g, "-")
       .replace(/[^a-zA-Z0-9-_]/g, "");
 
+    const safeFileName =
+      fileNameWithoutExtension || "resume";
+
     return {
       folder: "ZMS/resumes",
+
+      // Documents must be uploaded as raw assets.
       resource_type: "raw",
-      public_id: `${Date.now()}-${fileNameWithoutExtension}`,
+
+      // Raw Cloudinary public IDs must include the extension.
+      public_id: `${Date.now()}-${safeFileName}.${extension}`,
     };
   },
 });
@@ -61,13 +74,12 @@ export const resumeStorage = new CloudinaryStorage({
 // Client logo upload storage.
 export const clientStorage = new CloudinaryStorage({
   cloudinary,
-  params: async (req, file) => {
-    return {
-      folder: "ZMS/clients",
-      resource_type: "image",
-      allowed_formats: ["jpg", "jpeg", "png", "webp", "svg"],
-    };
-  },
+
+  params: async () => ({
+    folder: "ZMS/clients",
+    resource_type: "image",
+    allowed_formats: ["jpg", "jpeg", "png", "webp", "svg"],
+  }),
 });
 
 export default cloudinary;

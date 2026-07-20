@@ -770,7 +770,7 @@ const handleEdit = async (blog) => {
                 </div>
 
                 <p className="mt-2 text-xs text-gray-500">
-                  Recommended size: 1200 ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â 700px.
+                  Recommended size: 1200 , 700px.
                   Max file size: 10MB. JPG, PNG,
                   WEBP only.
                 </p>
@@ -832,7 +832,7 @@ const handleEdit = async (blog) => {
                     </p>
 
                     <p className="text-xs text-green-700">
-                      zmsipl.com ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âº blog ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âº{" "}
+                      zmsipl.com {" "}
                       {formData.slug ||
                         "blog-slug"}
                     </p>
