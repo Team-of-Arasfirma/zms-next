@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { X } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
@@ -299,9 +300,10 @@ const ProductDetails = () => {
             <button
               type="button"
               onClick={closeQuoteModal}
-              className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-2xl leading-none text-[#1d2b3a] transition hover:bg-gray-200"
+              className="absolute right-4 top-4 rounded-full bg-gray-100 p-2 text-gray-700 transition hover:bg-orange-500 hover:text-white"
+              aria-label="Close popup"
             >
-              Ã—
+              <X size={20} />
             </button>
 
             <h2

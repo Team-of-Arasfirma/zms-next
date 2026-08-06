@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
@@ -123,7 +124,8 @@ const BlogDetails = ({ slug, initialBlog }) => {
             href="/blog"
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/40 px-5 py-2 font-[Poppins] text-sm font-medium text-white transition hover:bg-white hover:text-[#1d2b3a]"
           >
-            ÃƒÂ¢Ã¢â‚¬Â Ã‚Â Back To Blogs
+            <ArrowLeft size={16} />
+            Back To Blogs
           </Link>
 
           <p className="mb-4 font-[Poppins] text-sm font-semibold uppercase tracking-[0.2em] text-[#ff6b2c]">

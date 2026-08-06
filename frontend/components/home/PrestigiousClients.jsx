@@ -4,8 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 export default function PrestigiousClients() {
   const [clients, setClients] = useState([]);
@@ -44,15 +43,38 @@ export default function PrestigiousClients() {
   const scrollingClients = [...clients, ...clients];
 
   const normalizeImageSrc = (src) => {
-    if (!src) {
-      return "";
-    }
+    if (!src) return "";
 
     if (/^(https?:|data:|blob:|\/)/.test(src)) {
       return src;
     }
 
     return `/${src}`;
+  };
+
+  const renderClientLogo = (client, index, rowType) => {
+    const logo = normalizeImageSrc(client.logo);
+
+    return (
+      <div
+        key={`${rowType}-${client._id || client.clientName || "client"}-${index}`}
+        className="group flex h-[110px] w-[200px] shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[#e5e5e5] bg-white p-5 shadow-[0_8px_18px_rgba(0,0,0,0.08)] sm:h-[125px] sm:w-[225px] md:h-[135px] md:w-[240px]"
+      >
+        {logo ? (
+          <div className="relative h-[80px] w-[155px] sm:h-[88px] sm:w-[170px] md:h-[95px] md:w-[185px]">
+            <Image
+              src={logo}
+              alt={client.clientName || "Client Logo"}
+              fill
+              sizes="(max-width: 640px) 155px, (max-width: 768px) 170px, 185px"
+              loading="lazy"
+              quality={70}
+              className="object-contain transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
+        ) : null}
+      </div>
+    );
   };
 
   if (!loading && clients.length === 0) {
@@ -98,57 +120,21 @@ export default function PrestigiousClients() {
 
         {!loading && clients.length > 0 && (
           <div className="mt-12 space-y-6">
+            {/* Top row: left to right */}
             <div className="client-row-wrapper relative overflow-hidden">
               <div className="client-scroll-left-to-right flex w-max gap-6">
-                {scrollingClients.map((client, index) => {
-                  const logo = normalizeImageSrc(client.logo);
-
-                  return (
-                    <div
-                      key={`top-${client._id}-${index}`}
-                      className="group flex h-[110px] w-[200px] shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[#e5e5e5] bg-white shadow-[0_8px_18px_rgba(0,0,0,0.08)] sm:h-[125px] sm:w-[225px] md:h-[135px] md:w-[240px]"
-                    >
-                      {logo ? (
-                        <Image
-                          src={logo}
-                          alt={client.clientName || "Client Logo"}
-                          width={185}
-                          height={90}
-                          loading="lazy"
-                          quality={70}
-                          className="h-auto w-auto max-h-[90px] max-w-[185px] object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-[95px] sm:max-w-[170px] md:max-h-[100px] md:max-w-[185px]"
-                        />
-                      ) : null}
-                    </div>
-                  );
-                })}
+                {scrollingClients.map((client, index) =>
+                  renderClientLogo(client, index, "top")
+                )}
               </div>
             </div>
 
+            {/* Bottom row: right to left */}
             <div className="client-row-wrapper relative overflow-hidden">
               <div className="client-scroll-right-to-left flex w-max gap-6">
-                {scrollingClients.map((client, index) => {
-                  const logo = normalizeImageSrc(client.logo);
-
-                  return (
-                    <div
-                      key={`bottom-${client._id}-${index}`}
-                      className="group flex h-[110px] w-[200px] shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[#e5e5e5] bg-white shadow-[0_8px_18px_rgba(0,0,0,0.08)] sm:h-[125px] sm:w-[225px] md:h-[135px] md:w-[240px]"
-                    >
-                      {logo ? (
-                        <Image
-                          src={logo}
-                          alt={client.clientName || "Client Logo"}
-                          width={185}
-                          height={90}
-                          loading="lazy"
-                          quality={70}
-                          className="h-auto w-auto max-h-[90px] max-w-[185px] object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-[95px] sm:max-w-[170px] md:max-h-[100px] md:max-w-[185px]"
-                        />
-                      ) : null}
-                    </div>
-                  );
-                })}
+                {scrollingClients.map((client, index) =>
+                  renderClientLogo(client, index, "bottom")
+                )}
               </div>
             </div>
           </div>

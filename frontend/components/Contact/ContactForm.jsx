@@ -160,7 +160,7 @@ const ContactForm = () => {
             disabled={submitting}
             className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#ff6b2c] px-8 py-4 font-[Poppins] text-sm font-semibold text-white transition-all duration-300 hover:bg-[#1d2b3a] disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
           >
-            {submitting ? "Submitting..." : "Send Enquiry &rarr;"}
+            {submitting ? "Submitting..." : "Send Enquiry"}
           </button>
         </motion.form>
       </div>

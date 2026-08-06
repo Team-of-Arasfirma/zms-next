@@ -4,9 +4,9 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 export default function LatestProjects() {
   const [projects, setProjects] = useState([]);
@@ -23,9 +23,7 @@ export default function LatestProjects() {
   };
 
   const normalizeImageSrc = (src) => {
-    if (!src) {
-      return "";
-    }
+    if (!src) return "";
 
     if (/^(https?:|data:|blob:|\/)/.test(src)) {
       return src;
@@ -136,7 +134,7 @@ export default function LatestProjects() {
                   }}
                   className="group overflow-hidden rounded-[12px] border border-[#ff9b6a] bg-white p-3 shadow-[0_10px_22px_rgba(0,0,0,0.10)]"
                 >
-                  <div className="aspect-[4/3] w-full overflow-hidden rounded-[8px] bg-white">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[8px] bg-white">
                     {projectImage ? (
                       <Image
                         src={projectImage}
@@ -167,13 +165,14 @@ export default function LatestProjects() {
         <div className="mt-10 flex justify-center">
           <Link
             href="/project"
-            className="group inline-flex items-center gap-4 font-['Poppins'] text-[13px] font-semibold text-[#ff6b2c]"
+            className="group inline-flex items-center gap-3 font-['Poppins'] text-[13px] font-semibold text-[#ff6b2c]"
           >
             View All Projects
 
-            <span className="text-[24px] leading-none transition-transform duration-200 group-hover:translate-x-2">
-              â†’
-            </span>
+            <ArrowRight
+              size={22}
+              className="transition-transform duration-200 group-hover:translate-x-2"
+            />
           </Link>
         </div>
       </div>
