@@ -26,6 +26,11 @@ const allowedOrigins = [
 
   "https://zms-next.onrender.com",
   "https://zms-next.vercel.app",
+
+  "https://zmsipl.com",
+  "https://www.zmsipl.com",
+  "https://zmsipl.in",
+  "https://www.zmsipl.in",
 ];
 
 // -------------------------------
