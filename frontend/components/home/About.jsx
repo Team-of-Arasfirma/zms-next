@@ -72,7 +72,7 @@ const About = () => {
                 className="rounded-[20px] bg-[#fff7f4] px-3 py-6 text-center md:py-8"
               >
                 <h3 className="font-['Sarpanch'] text-xl font-extrabold tracking-wide text-[#ff6b2c] sm:text-2xl md:text-3xl">
-                  2+ Years
+                  8+ Years
                 </h3>
 
                 <p className="mt-1 font-['Lato'] text-xs text-[#ff6b2c] sm:text-sm">
