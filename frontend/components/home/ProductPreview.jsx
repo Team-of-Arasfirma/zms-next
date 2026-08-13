@@ -6,31 +6,31 @@ import { motion } from "framer-motion";
 
 const products = [
   {
-    image: "/product-image/cPurlin.png",
+    image: "/assets/product-image/cPurlin.png",
     title: "C Purlin",
     description:
       "Structural C-section steel for rafters, floor joists, and wall studs with high tensile strength.",
   },
   {
-    image: "/product-image/hatPurlin.png",
+    image: "/assets/product-image/hatPurlin.png",
     title: "Hat Purlin",
     description:
       "Hat-section purlins providing excellent strength-to-weight ratio for modern roofing systems.",
   },
   {
-    image: "/product-image/hrHdgPurlin.png",
+    image: "/assets/product-image/hrHdgPurlin.png",
     title: "HR | HDG Purlin",
     description:
       "Hot-rolled structural purlins for heavy-duty industrial applications requiring superior load capacity.",
   },
   {
-    image: "/product-image/Cleat.png",
+    image: "/assets/product-image/Cleat.png",
     title: "Cleat",
     description:
       "Precision-made cleats used for strong fixing, support, and secure structural connections.",
   },
   {
-    image: "/product-image/Plate.png",
+    image: "/assets/product-image/Plate.png",
     title: "Plate",
     description:
       "Steel plates used for strong fixing, support, and secure structural connections.",

@@ -6,12 +6,12 @@ import { motion } from "framer-motion";
 const leaders = [
   {
     id: 1,
-    logo: "/L-logo/jsw.png",
+    logo: "/assets/L-logo/jsw.png",
     name: "JSW",
   },
   {
     id: 2,
-    logo: "/L-logo/tata.png",
+    logo: "/assets/L-logo/tata.png",
     name: "Tata Steel",
   },
 ];

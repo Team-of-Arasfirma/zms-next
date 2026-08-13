@@ -34,7 +34,7 @@ const CertificationAwards = () => {
           <div className="mt-8 flex h-[520px] items-center justify-center">
             <div className="relative h-full w-full">
               <Image
-                src="/about/iso-certificate.jpg"
+                src="/assets/about/iso-certificate.jpg"
                 alt="ISO Certifications and Compliance"
                 fill
                 sizes="(max-width: 1024px) 100vw, 760px"

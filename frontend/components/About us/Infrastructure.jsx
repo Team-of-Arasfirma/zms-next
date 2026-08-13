@@ -41,7 +41,7 @@ const Infrastructure = () => {
           >
             <div className="absolute left-0 top-0 z-10 h-[320px] w-[62%] overflow-hidden rounded-[8px] shadow-sm sm:h-[390px]">
               <Image
-                src="/about/factory.jpg"
+                src="/assets/about/factory.jpg"
                 alt="ZMS infrastructure"
                 fill
                 sizes="(max-width: 1024px) 62vw, 390px"
@@ -53,7 +53,7 @@ const Infrastructure = () => {
 
             <div className="absolute right-0 top-[26px] z-20 h-[270px] w-[62%] overflow-hidden rounded-[8px] shadow-md sm:top-[34px] sm:h-[330px]">
               <Image
-                src="/about/f-in.jpg"
+                src="/assets/about/f-in.jpg"
                 alt="ZMS manufacturing infrastructure"
                 fill
                 sizes="(max-width: 1024px) 62vw, 330px"

@@ -58,7 +58,7 @@ const CompanyOverview = () => {
         >
           <div className="absolute right-0 top-0 z-10 aspect-video w-full max-w-[560px] overflow-hidden rounded-[22px] shadow-sm">
             <Image
-              src="/about/factory.jpg"
+              src="/assets/about/factory.jpg"
               alt="ZMS factory overview"
               fill
               sizes="(max-width: 1024px) 100vw, 560px"
@@ -70,7 +70,7 @@ const CompanyOverview = () => {
 
           <div className="absolute bottom-0 left-0 z-20 aspect-video w-[72%] max-w-[360px] overflow-hidden rounded-[22px] shadow-lg lg:left-[-10px]">
             <Image
-              src="/about/building.jpg"
+              src="/assets/about/building.jpg"
               alt="ZMS manufacturing unit"
               fill
               sizes="(max-width: 1024px) 72vw, 360px"

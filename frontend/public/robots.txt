@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /login
+Disallow: /api/
+Disallow: /_next/data/
+
+Sitemap: https://www.zmsipl.com/sitemap.xml

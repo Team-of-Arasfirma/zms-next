@@ -8,19 +8,19 @@ import QuotePopup from "@/components/QuotePopup";
 
 const slides = [
   {
-    src: "/hero-image/h1.jpg",
+    src: "/assets/hero-image/h1.jpg",
     alt: "ZMS construction structure 1",
   },
   {
-    src: "/hero-image/h2.jpg",
+    src: "/assets/hero-image/h2.jpg",
     alt: "ZMS construction structure 2",
   },
   {
-    src: "/hero-image/h3.jpg",
+    src: "/assets/hero-image/h3.jpg",
     alt: "ZMS construction structure 3",
   },
   {
-    src: "/hero-image/h4.jpg",
+    src: "/assets/hero-image/h4.jpg",
     alt: "ZMS construction structure 4",
   },
 ];

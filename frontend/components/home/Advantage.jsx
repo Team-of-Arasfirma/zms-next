@@ -5,22 +5,22 @@ import { motion } from "framer-motion";
 
 const advantages = [
   {
-    icon: "/icons/advantage/premium.svg",
+    icon: "/assets/icons/advantage/premium.svg",
     title: "Premium Quality",
     description: "Quality material + quality checking.",
   },
   {
-    icon: "/icons/advantage/durability.svg",
+    icon: "/assets/icons/advantage/durability.svg",
     title: "Superior Durability",
     description: "Strong, weather resistant, long life.",
   },
   {
-    icon: "/icons/advantage/fabrication.svg",
+    icon: "/assets/icons/advantage/fabrication.svg",
     title: "Custom Fabrication",
     description: "Client requirement and custom size/design.",
   },
   {
-    icon: "/icons/advantage/delivery.svg",
+    icon: "/assets/icons/advantage/delivery.svg",
     title: "Fast Delivery",
     description: "Quick production and dispatch.",
   },

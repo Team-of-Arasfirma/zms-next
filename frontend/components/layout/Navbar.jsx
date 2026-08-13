@@ -42,7 +42,7 @@ export default function Navbar() {
           aria-label="Go to ZMS home page"
         >
           <Image
-            src="/logo/zms.png"
+            src="/assets/logo/zms.png"
             alt="ZMS Logo"
             width={200}
             height={100}

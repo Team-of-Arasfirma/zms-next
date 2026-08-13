@@ -14,7 +14,7 @@ function Footer() {
               className="block w-[170px]"
             >
               <Image
-                src="/logo/white.svg"
+                src="/assets/logo/white.svg"
                 alt="Zaron Metal Sections"
                 width={170}
                 height={100}
