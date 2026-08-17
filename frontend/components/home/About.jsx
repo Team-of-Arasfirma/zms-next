@@ -53,7 +53,7 @@ const About = () => {
               className="relative h-[280px] overflow-hidden rounded-[22px] sm:h-[340px] md:h-[420px]"
             >
               <Image
-                src="/about/factory.jpg"
+                src="/assets/about/factory.jpg"
                 alt="ZMS factory"
                 fill
                 sizes="(max-width: 768px) 50vw, 33vw"
@@ -89,7 +89,7 @@ const About = () => {
                 className="relative h-[170px] overflow-hidden rounded-[22px] sm:h-[210px] md:h-[260px]"
               >
                 <Image
-                  src="/about/building.jpg"
+                  src="/assets/about/building.jpg"
                   alt="ZMS building"
                   fill
                   sizes="(max-width: 768px) 50vw, 33vw"
