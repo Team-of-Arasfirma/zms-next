@@ -1,4 +1,4 @@
-﻿import express from "express";
+import express from "express";
 import multer from "multer";
 
 import {
@@ -6,18 +6,18 @@ import {
   deleteBlog,
   getBlogById,
   getBlogBySlug,
+  getBlogCategories,
+  getBlogSubCategories,
   getBlogs,
   updateBlog,
 } from "../controllers/blogController.js";
 
 import { requireAuth } from "../middleware/authMiddleware.js";
 import { requirePermission } from "../middleware/permissionMiddleware.js";
-
 import { projectStorage } from "../config/cloudinary.js";
 
 const router = express.Router();
 
-// Configure Multer to receive blog cover images.
 const upload = multer({
   storage: projectStorage,
   limits: {
@@ -25,12 +25,10 @@ const upload = multer({
   },
 });
 
-// Common upload middleware for blog cover images.
 const uploadBlogCoverImage = (req, res, next) => {
   upload.single("coverImage")(req, res, (error) => {
     if (error) {
       console.error("Blog Image Upload Error:", error);
-
       return res.status(500).json({
         message: error.message || "Blog image upload failed",
       });
@@ -40,11 +38,12 @@ const uploadBlogCoverImage = (req, res, next) => {
   });
 };
 
-// Public lightweight blog listing.
 router.get("/", getBlogs);
 
-// Admin full blog data by ID.
-// Keep this route before "/:slug".
+// These option routes must remain before the dynamic slug route.
+router.get("/categories", getBlogCategories);
+router.get("/sub-categories", getBlogSubCategories);
+
 router.get(
   "/admin/:id",
   requireAuth,
@@ -52,10 +51,8 @@ router.get(
   getBlogById
 );
 
-// Public full blog detail by slug.
 router.get("/:slug", getBlogBySlug);
 
-// Create blog.
 router.post(
   "/",
   requireAuth,
@@ -64,7 +61,6 @@ router.post(
   createBlog
 );
 
-// Update blog.
 router.put(
   "/:id",
   requireAuth,
@@ -73,7 +69,6 @@ router.put(
   updateBlog
 );
 
-// Delete blog.
 router.delete(
   "/:id",
   requireAuth,

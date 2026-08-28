@@ -3,20 +3,15 @@ import BlogHero from "@/components/Blog/BlogHero";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Blogs",
-  description:
-    "Explore the latest blogs, steel structure insights, fabrication updates, and industry news from ZMSIPL.",
-};
-
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
-async function getBlogs() {
+async function getBlogsBySubCategory(categorySlug, subCategorySlug) {
   try {
-    const response = await fetch(`${API_BASE}/api/blogs`, {
-      cache: "no-store",
-    });
+    const response = await fetch(
+      `${API_BASE}/api/blogs?categorySlug=${encodeURIComponent(categorySlug)}&subCategorySlug=${encodeURIComponent(subCategorySlug)}`,
+      { cache: "no-store" }
+    );
 
     if (!response.ok) {
       return [];
@@ -49,7 +44,7 @@ async function getBlogs() {
           "Read more about this article.",
       }));
   } catch (error) {
-    console.error("Blog API connection failed:", error);
+    console.error("Blog subcategory API connection failed:", error);
     return [];
   }
 }
@@ -72,11 +67,12 @@ async function getCategories() {
   }
 }
 
-async function getSubCategories() {
+async function getSubCategories(categorySlug) {
   try {
-    const response = await fetch(`${API_BASE}/api/blogs/sub-categories`, {
-      cache: "no-store",
-    });
+    const response = await fetch(
+      `${API_BASE}/api/blogs/sub-categories?categorySlug=${encodeURIComponent(categorySlug)}`,
+      { cache: "no-store" }
+    );
 
     if (!response.ok) {
       return [];
@@ -90,11 +86,25 @@ async function getSubCategories() {
   }
 }
 
-export default async function BlogPage() {
+export async function generateMetadata({ params }) {
+  const { subCategorySlug } = await params;
+  const readableSubCategory = subCategorySlug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
+  return {
+    title: `${readableSubCategory} Blogs`,
+    description: `Read ${readableSubCategory} related blogs and updates from ZMSIPL.`,
+  };
+}
+
+export default async function BlogSubCategoryPage({ params }) {
+  const { categorySlug, subCategorySlug } = await params;
   const [blogs, categories, subCategories] = await Promise.all([
-    getBlogs(),
+    getBlogsBySubCategory(categorySlug, subCategorySlug),
     getCategories(),
-    getSubCategories(),
+    getSubCategories(categorySlug),
   ]);
 
   return (
@@ -104,8 +114,8 @@ export default async function BlogPage() {
         initialBlogs={blogs}
         initialCategories={categories}
         initialSubCategories={subCategories}
-        activeCategorySlug=""
-        activeSubCategorySlug=""
+        activeCategorySlug={categorySlug}
+        activeSubCategorySlug={subCategorySlug}
       />
     </>
   );

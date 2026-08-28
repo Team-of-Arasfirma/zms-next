@@ -20,10 +20,21 @@ const normalizeImageSrc = (src) => {
   return `/${src}`;
 };
 
-const BlogDetails = ({ slug, initialBlog }) => {
+const BlogDetails = ({
+  slug,
+  categorySlug = "",
+  subCategorySlug = "",
+  initialBlog,
+}) => {
   const [blog, setBlog] = useState(initialBlog || null);
   const [loading, setLoading] = useState(!initialBlog);
   const [error, setError] = useState("");
+  const backHref =
+    categorySlug && subCategorySlug
+      ? `/blog/category/${categorySlug}/${subCategorySlug}`
+      : categorySlug
+        ? `/blog/category/${categorySlug}`
+        : "/blog";
 
   // Fetch blog only as a fallback when server data is not available.
   const fetchBlogDetails = async () => {
@@ -91,7 +102,7 @@ const BlogDetails = ({ slug, initialBlog }) => {
           </p>
 
           <Link
-            href="/blog"
+            href={backHref}
             className="mt-6 inline-block rounded-full bg-[#ff6b2c] px-6 py-3 font-[Poppins] text-sm font-semibold text-white transition hover:bg-[#1d2b3a]"
           >
             Back To Blogs
@@ -121,7 +132,7 @@ const BlogDetails = ({ slug, initialBlog }) => {
 
         <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
           <Link
-            href="/blog"
+            href={backHref}
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/40 px-5 py-2 font-[Poppins] text-sm font-medium text-white transition hover:bg-white hover:text-[#1d2b3a]"
           >
             <ArrowLeft size={16} />
@@ -149,7 +160,7 @@ const BlogDetails = ({ slug, initialBlog }) => {
 
           <div className="mt-12 border-t border-gray-200 pt-8">
             <Link
-              href="/blog"
+              href={backHref}
               className="inline-flex items-center gap-2 rounded-full bg-[#ff6b2c] px-7 py-3 font-[Poppins] text-sm font-semibold text-white transition hover:bg-[#1d2b3a]"
             >
              Back To Blog Page

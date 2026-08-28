@@ -5,10 +5,10 @@ function ProjectHero() {
     <section className="relative w-full h-[70vh] min-h-[480px] overflow-hidden">
       {/* Background Image */}
       <Image
-        src="/project/chennimalai-7mw.jpg"
+        src="/assets/project/chi.jpg"
         alt="Chennimalai 7MW project"
         fill
-                sizes="100vw"
+        sizes="100vw"
         className="object-cover"
       />
 

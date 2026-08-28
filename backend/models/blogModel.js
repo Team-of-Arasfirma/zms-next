@@ -16,6 +16,32 @@ const blogSchema = new mongoose.Schema(
       lowercase: true,
     },
 
+    category: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    categorySlug: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+    },
+
+    subCategory: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    subCategorySlug: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: "",
+    },
+
     date: {
       type: String,
       required: true,
@@ -34,17 +60,16 @@ const blogSchema = new mongoose.Schema(
 
     coverImage: {
       type: String,
-      required: true,
+      trim: true,
+      default: "",
     },
 
-    // SEO meta title for the blog page.
     metaTitle: {
       type: String,
       trim: true,
       default: "",
     },
 
-    // SEO meta description for the blog page.
     metaDescription: {
       type: String,
       trim: true,
@@ -55,6 +80,10 @@ const blogSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+blogSchema.index({ categorySlug: 1 });
+blogSchema.index({ subCategorySlug: 1 });
+blogSchema.index({ status: 1 });
 
 const Blog = mongoose.model("Blog", blogSchema);
 
