@@ -42,15 +42,36 @@ const getRouteData = (params) => {
   };
 };
 
+const getCanonicalPath = (routeData, blog = null) => {
+  const categorySlug = blog?.categorySlug || routeData.categorySlug;
+  const subCategorySlug = blog?.subCategorySlug || routeData.subCategorySlug;
+  const blogSlug = blog?.slug || routeData.blogSlug;
+
+  if (categorySlug && subCategorySlug && blogSlug) {
+    return `/${categorySlug}/${subCategorySlug}/${blogSlug}`;
+  }
+
+  if (categorySlug && blogSlug) {
+    return `/${categorySlug}/${blogSlug}`;
+  }
+
+  return `/blog/${blogSlug}`;
+};
+
 export async function generateMetadata({ params }) {
   const routeData = getRouteData(await params);
 
   const blog = await getBlog(routeData.blogSlug);
 
+  const canonicalPath = getCanonicalPath(routeData, blog);
+
   if (!blog) {
     return {
       title: "Blog",
       description: "Read the latest updates from ZMSIPL.",
+      alternates: {
+        canonical: canonicalPath,
+      },
     };
   }
 
@@ -58,6 +79,9 @@ export async function generateMetadata({ params }) {
     title: blog.metaTitle || blog.title || "Blog",
     description:
       blog.metaDescription || "Read the latest updates from ZMSIPL.",
+    alternates: {
+      canonical: canonicalPath,
+    },
   };
 }
 

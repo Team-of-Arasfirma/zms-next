@@ -23,23 +23,41 @@ async function getBlog(slug) {
   }
 }
 
+const getCanonicalPath = (blog, fallbackSlug) => {
+  if (blog?.categorySlug && blog?.subCategorySlug && blog?.slug) {
+    return `/${blog.categorySlug}/${blog.subCategorySlug}/${blog.slug}`;
+  }
+
+  if (blog?.categorySlug && blog?.slug) {
+    return `/${blog.categorySlug}/${blog.slug}`;
+  }
+
+  return `/blog/${blog?.slug || fallbackSlug}`;
+};
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
 
   const blog = await getBlog(slug);
+  const canonicalPath = getCanonicalPath(blog, slug);
 
   if (!blog) {
     return {
       title: "Blog",
       description: "Read the latest updates from ZMSIPL.",
+      alternates: {
+        canonical: canonicalPath,
+      },
     };
   }
 
   return {
     title: blog.metaTitle || blog.title || "Blog",
     description:
-      blog.metaDescription ||
-      "Read the latest updates from ZMSIPL.",
+      blog.metaDescription || "Read the latest updates from ZMSIPL.",
+    alternates: {
+      canonical: canonicalPath,
+    },
   };
 }
 
@@ -51,6 +69,8 @@ export default async function BlogDetailPage({ params }) {
   return (
     <BlogDetails
       slug={slug}
+      categorySlug={blog?.categorySlug || ""}
+      subCategorySlug={blog?.subCategorySlug || ""}
       initialBlog={blog}
     />
   );

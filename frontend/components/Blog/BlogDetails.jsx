@@ -152,7 +152,7 @@ const BlogDetails = ({
       <section className="bg-white py-14 md:py-20">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div
-            className="blog-content font-[Lato] text-base leading-8 text-gray-700 md:text-lg"
+            className="blog-content"
             dangerouslySetInnerHTML={{
               __html: blog.content,
             }}

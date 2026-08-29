@@ -29,7 +29,7 @@ const stripHtml = (html = "") => {
     .trim();
 };
 
-const createExcerpt = (html = "", maxLength = 160) => {
+const createExcerpt = (html = "", maxLength = 260) => {
   const plainText = stripHtml(html);
 
   if (!plainText) {
@@ -55,9 +55,11 @@ const requiredBlogFieldsMissing = ({
   categorySlug,
   date,
   content,
-}) =>
-  !title || !slug || !category || !categorySlug || !date || !content;
+}) => !title || !slug || !category || !categorySlug || !date || !content;
 
+// -------------------------------
+// Create Blog
+// -------------------------------
 export const createBlog = async (req, res) => {
   try {
     const {
@@ -102,7 +104,9 @@ export const createBlog = async (req, res) => {
       });
     }
 
-    const existingBlog = await Blog.findOne({ slug: normalizedSlug });
+    const existingBlog = await Blog.findOne({
+      slug: normalizedSlug,
+    });
 
     if (existingBlog) {
       return res.status(409).json({
@@ -139,6 +143,7 @@ export const createBlog = async (req, res) => {
     });
   } catch (error) {
     console.error("Create Blog Error:", error);
+
     return res.status(500).json({
       message: "Failed to create blog",
       error: error.message,
@@ -146,9 +151,13 @@ export const createBlog = async (req, res) => {
   }
 };
 
+// -------------------------------
+// Get Blogs
+// -------------------------------
 export const getBlogs = async (req, res) => {
   try {
     const { categorySlug, subCategorySlug, status } = req.query;
+
     const filter = {};
 
     if (categorySlug) {
@@ -167,7 +176,9 @@ export const getBlogs = async (req, res) => {
       .select(
         "title slug category categorySlug subCategory subCategorySlug date status coverImage metaTitle metaDescription content createdAt updatedAt"
       )
-      .sort({ createdAt: -1 });
+      .sort({
+        createdAt: -1,
+      });
 
     const listingBlogs = blogs.map((blog) => ({
       _id: blog._id,
@@ -182,7 +193,7 @@ export const getBlogs = async (req, res) => {
       coverImage: blog.coverImage || "",
       metaTitle: blog.metaTitle || "",
       metaDescription: blog.metaDescription || "",
-      excerpt: createExcerpt(blog.content, 160),
+      excerpt: createExcerpt(blog.content, 260),
       createdAt: blog.createdAt,
       updatedAt: blog.updatedAt,
     }));
@@ -190,6 +201,7 @@ export const getBlogs = async (req, res) => {
     return res.status(200).json(listingBlogs);
   } catch (error) {
     console.error("Get Blogs Error:", error);
+
     return res.status(500).json({
       message: "Failed to fetch blogs",
       error: error.message,
@@ -197,19 +209,36 @@ export const getBlogs = async (req, res) => {
   }
 };
 
+// -------------------------------
+// Get Blog Categories
+// -------------------------------
 export const getBlogCategories = async (req, res) => {
   try {
     const categories = await Blog.aggregate([
-      { $match: { status: "Published" } },
+      {
+        $match: {
+          status: "Published",
+        },
+      },
       {
         $group: {
           _id: "$categorySlug",
-          category: { $first: "$category" },
-          categorySlug: { $first: "$categorySlug" },
-          count: { $sum: 1 },
+          category: {
+            $first: "$category",
+          },
+          categorySlug: {
+            $first: "$categorySlug",
+          },
+          count: {
+            $sum: 1,
+          },
         },
       },
-      { $sort: { category: 1 } },
+      {
+        $sort: {
+          category: 1,
+        },
+      },
       {
         $project: {
           _id: 0,
@@ -223,6 +252,7 @@ export const getBlogCategories = async (req, res) => {
     return res.status(200).json(categories);
   } catch (error) {
     console.error("Get Blog Categories Error:", error);
+
     return res.status(500).json({
       message: "Failed to fetch blog categories",
       error: error.message,
@@ -230,12 +260,18 @@ export const getBlogCategories = async (req, res) => {
   }
 };
 
+// -------------------------------
+// Get Blog Sub Categories
+// -------------------------------
 export const getBlogSubCategories = async (req, res) => {
   try {
     const { categorySlug } = req.query;
+
     const match = {
       status: "Published",
-      subCategorySlug: { $nin: [null, ""] },
+      subCategorySlug: {
+        $nin: [null, ""],
+      },
     };
 
     if (categorySlug) {
@@ -243,21 +279,38 @@ export const getBlogSubCategories = async (req, res) => {
     }
 
     const subCategories = await Blog.aggregate([
-      { $match: match },
+      {
+        $match: match,
+      },
       {
         $group: {
           _id: {
             categorySlug: "$categorySlug",
             subCategorySlug: "$subCategorySlug",
           },
-          subCategory: { $first: "$subCategory" },
-          subCategorySlug: { $first: "$subCategorySlug" },
-          category: { $first: "$category" },
-          categorySlug: { $first: "$categorySlug" },
-          count: { $sum: 1 },
+          subCategory: {
+            $first: "$subCategory",
+          },
+          subCategorySlug: {
+            $first: "$subCategorySlug",
+          },
+          category: {
+            $first: "$category",
+          },
+          categorySlug: {
+            $first: "$categorySlug",
+          },
+          count: {
+            $sum: 1,
+          },
         },
       },
-      { $sort: { category: 1, subCategory: 1 } },
+      {
+        $sort: {
+          category: 1,
+          subCategory: 1,
+        },
+      },
       {
         $project: {
           _id: 0,
@@ -273,6 +326,7 @@ export const getBlogSubCategories = async (req, res) => {
     return res.status(200).json(subCategories);
   } catch (error) {
     console.error("Get Blog Subcategories Error:", error);
+
     return res.status(500).json({
       message: "Failed to fetch blog subcategories",
       error: error.message,
@@ -280,17 +334,24 @@ export const getBlogSubCategories = async (req, res) => {
   }
 };
 
+// -------------------------------
+// Get Single Blog By ID
+// Full blog data for admin edit
+// -------------------------------
 export const getBlogById = async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
 
     if (!blog) {
-      return res.status(404).json({ message: "Blog not found" });
+      return res.status(404).json({
+        message: "Blog not found",
+      });
     }
 
     return res.status(200).json(blog);
   } catch (error) {
     console.error("Get Blog By ID Error:", error);
+
     return res.status(500).json({
       message: "Failed to fetch blog",
       error: error.message,
@@ -298,6 +359,10 @@ export const getBlogById = async (req, res) => {
   }
 };
 
+// -------------------------------
+// Get Single Blog By Slug
+// Full blog data for public detail page
+// -------------------------------
 export const getBlogBySlug = async (req, res) => {
   try {
     const blog = await Blog.findOne({
@@ -306,12 +371,15 @@ export const getBlogBySlug = async (req, res) => {
     });
 
     if (!blog) {
-      return res.status(404).json({ message: "Blog not found" });
+      return res.status(404).json({
+        message: "Blog not found",
+      });
     }
 
     return res.status(200).json(blog);
   } catch (error) {
     console.error("Get Blog By Slug Error:", error);
+
     return res.status(500).json({
       message: "Failed to fetch blog",
       error: error.message,
@@ -319,6 +387,9 @@ export const getBlogBySlug = async (req, res) => {
   }
 };
 
+// -------------------------------
+// Update Blog
+// -------------------------------
 export const updateBlog = async (req, res) => {
   try {
     const {
@@ -333,6 +404,7 @@ export const updateBlog = async (req, res) => {
       content,
       metaTitle,
       metaDescription,
+      removeCoverImage,
     } = req.body;
 
     if (
@@ -354,7 +426,9 @@ export const updateBlog = async (req, res) => {
     const blog = await Blog.findById(req.params.id);
 
     if (!blog) {
-      return res.status(404).json({ message: "Blog not found" });
+      return res.status(404).json({
+        message: "Blog not found",
+      });
     }
 
     const normalizedSlug = createSlug(slug);
@@ -371,11 +445,15 @@ export const updateBlog = async (req, res) => {
 
     const duplicateSlug = await Blog.findOne({
       slug: normalizedSlug,
-      _id: { $ne: req.params.id },
+      _id: {
+        $ne: req.params.id,
+      },
     });
 
     if (duplicateSlug) {
-      return res.status(409).json({ message: "Blog slug already exists" });
+      return res.status(409).json({
+        message: "Blog slug already exists",
+      });
     }
 
     blog.title = title.trim();
@@ -389,6 +467,10 @@ export const updateBlog = async (req, res) => {
     blog.content = content;
     blog.metaTitle = metaTitle?.trim() || "";
     blog.metaDescription = metaDescription?.trim() || "";
+
+    if (removeCoverImage === "true") {
+      blog.coverImage = "";
+    }
 
     if (req.file) {
       const coverImage = getImageUrl(req.file);
@@ -410,6 +492,7 @@ export const updateBlog = async (req, res) => {
     });
   } catch (error) {
     console.error("Update Blog Error:", error);
+
     return res.status(500).json({
       message: "Failed to update blog",
       error: error.message,
@@ -417,17 +500,25 @@ export const updateBlog = async (req, res) => {
   }
 };
 
+// -------------------------------
+// Delete Blog
+// -------------------------------
 export const deleteBlog = async (req, res) => {
   try {
     const blog = await Blog.findByIdAndDelete(req.params.id);
 
     if (!blog) {
-      return res.status(404).json({ message: "Blog not found" });
+      return res.status(404).json({
+        message: "Blog not found",
+      });
     }
 
-    return res.status(200).json({ message: "Blog deleted successfully" });
+    return res.status(200).json({
+      message: "Blog deleted successfully",
+    });
   } catch (error) {
     console.error("Delete Blog Error:", error);
+
     return res.status(500).json({
       message: "Failed to delete blog",
       error: error.message,

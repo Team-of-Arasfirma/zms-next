@@ -46,6 +46,7 @@ const AdminBlogs = () => {
   const [coverImageFile, setCoverImageFile] = useState(null);
   const [coverImagePreview, setCoverImagePreview] = useState("");
   const [coverImageName, setCoverImageName] = useState("");
+  const [removeCoverImage, setRemoveCoverImage] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBlogId, setEditingBlogId] = useState(null);
@@ -218,6 +219,7 @@ const AdminBlogs = () => {
     setCoverImageFile(null);
     setCoverImagePreview("");
     setCoverImageName("");
+    setRemoveCoverImage(false);
 
     if (coverImageInputRef.current) {
       coverImageInputRef.current.value = "";
@@ -393,6 +395,7 @@ const AdminBlogs = () => {
 
     reader.onloadend = () => {
       setError("");
+      setRemoveCoverImage(false);
       setCoverImageFile(file);
       setCoverImagePreview(reader.result);
       setCoverImageName(file.name);
@@ -439,6 +442,7 @@ const AdminBlogs = () => {
       payload.append("content", formData.content);
       payload.append("metaTitle", formData.metaTitle);
       payload.append("metaDescription", formData.metaDescription);
+      payload.append("removeCoverImage", removeCoverImage ? "true" : "false");
 
       if (coverImageFile) {
         payload.append("coverImage", coverImageFile);
@@ -526,6 +530,7 @@ const AdminBlogs = () => {
       setCoverImageFile(null);
       setCoverImagePreview(fullBlog.coverImage || "");
       setCoverImageName(fullBlog.coverImage ? "Current uploaded image" : "");
+      setRemoveCoverImage(false);
 
       if (coverImageInputRef.current) {
         coverImageInputRef.current.value = "";
@@ -1023,12 +1028,31 @@ const AdminBlogs = () => {
                   PNG, WEBP only.
                 </p>
 
-                {coverImagePreview && (
-                  <img
-                    src={coverImagePreview}
-                    alt="Blog cover preview"
-                    className="mt-4 h-56 w-full rounded-xl object-cover"
-                  />
+                {coverImagePreview && !removeCoverImage && (
+                  <div className="mt-4">
+                    <img
+                      src={coverImagePreview}
+                      alt="Blog cover preview"
+                      className="h-56 w-full rounded-xl object-cover"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRemoveCoverImage(true);
+                        setCoverImageFile(null);
+                        setCoverImagePreview("");
+                        setCoverImageName("");
+
+                        if (coverImageInputRef.current) {
+                          coverImageInputRef.current.value = "";
+                        }
+                      }}
+                      className="mt-3 rounded-md bg-red-50 px-4 py-2 text-sm font-bold text-red-600 transition hover:bg-red-100"
+                    >
+                      Remove Image
+                    </button>
+                  </div>
                 )}
               </div>
 

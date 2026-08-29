@@ -2,6 +2,7 @@ import Script from "next/script";
 import "./globals.css";
 
 export const metadata = {
+  metadataBase: new URL("https://www.zmsipl.com"),
   title: {
     default: "ZMSIPL | Zaron Metal Sections",
     template: "%s | ZMSIPL",
