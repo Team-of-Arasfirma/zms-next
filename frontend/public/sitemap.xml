@@ -1,34 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://www.zmsipl.com/sitemap-pages.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://www.zmsipl.com/sitemap-blog.xml</loc>
+  </sitemap>
 
-  <url>
-    <loc>https://zmsipl.com/</loc>
-    <priority>1.0</priority>
-  </url>
-
-  <url>
-    <loc>https://zmsipl.com/about</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://zmsipl.com/product</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://zmsipl.com/projects</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://zmsipl.com/blog</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://zmsipl.com/contact</loc>
-    <priority>0.8</priority>
-  </url>
-
-</urlset> 
+</sitemapindex>
