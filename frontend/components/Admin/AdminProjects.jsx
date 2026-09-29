@@ -11,6 +11,7 @@ const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const initialFormState = {
   title: "",
   capacity: "",
+  capacityMw: "",
   location: "",
   status: "Completed",
 };
@@ -29,12 +30,11 @@ const AdminProjects = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  // Popup open / close state
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Store the selected project ID while editing
   const [editingProjectId, setEditingProjectId] = useState(null);
   const isEditing = Boolean(editingProjectId);
+
   const canCreate = hasPermission("projects", "create");
   const canEdit = hasPermission("projects", "edit");
   const canDelete = hasPermission("projects", "delete");
@@ -45,6 +45,11 @@ const AdminProjects = () => {
     return {
       Authorization: `Bearer ${token}`,
     };
+  };
+
+  const extractMwFromCapacity = (value = "") => {
+    const match = String(value).match(/[\d.]+/);
+    return match ? match[0] : "";
   };
 
   const fetchProjects = async () => {
@@ -59,7 +64,13 @@ const AdminProjects = () => {
         throw new Error(data?.message || "Failed to load projects");
       }
 
-      setProjects(Array.isArray(data) ? data : []);
+      const sortedProjects = Array.isArray(data)
+        ? [...data].sort(
+            (a, b) => Number(b.capacityMw || 0) - Number(a.capacityMw || 0)
+          )
+        : [];
+
+      setProjects(sortedProjects);
     } catch (fetchError) {
       setError(fetchError.message);
     } finally {
@@ -110,7 +121,6 @@ const AdminProjects = () => {
     resetForm();
   };
 
-  // Fill the form with selected project data when Edit is clicked
   const handleEdit = (project) => {
     setMessage("");
     setError("");
@@ -120,6 +130,10 @@ const AdminProjects = () => {
     setFormData({
       title: project.title || "",
       capacity: project.capacity || "",
+      capacityMw:
+        project.capacityMw !== undefined && project.capacityMw !== null
+          ? String(project.capacityMw)
+          : extractMwFromCapacity(project.capacity || ""),
       location: project.location || "",
       status: project.status || "Completed",
     });
@@ -130,7 +144,6 @@ const AdminProjects = () => {
       URL.revokeObjectURL(imagePreview);
     }
 
-    // Show the existing uploaded image in the preview
     setImagePreview(project.image || "");
 
     if (fileInputRef.current) {
@@ -142,6 +155,25 @@ const AdminProjects = () => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+
+    if (name === "capacity") {
+      setFormData((current) => ({
+        ...current,
+        capacity: value,
+        capacityMw: current.capacityMw || extractMwFromCapacity(value),
+      }));
+
+      return;
+    }
+
+    if (name === "capacityMw") {
+      setFormData((current) => ({
+        ...current,
+        capacityMw: value.replace(/[^\d.]/g, ""),
+      }));
+
+      return;
+    }
 
     setFormData((current) => ({
       ...current,
@@ -190,14 +222,20 @@ const AdminProjects = () => {
     if (
       !formData.title.trim() ||
       !formData.capacity.trim() ||
+      !formData.capacityMw.toString().trim() ||
       !formData.location.trim()
     ) {
-      setError("Project title, capacity, and location are required.");
+      setError("Project title, capacity, MW order number, and location are required.");
       return;
     }
 
-    // Image is required only when adding a new project
-    // In edit mode, the image is optional. If no new image is selected, the old image will remain unchanged.
+    const numericCapacityMw = Number(formData.capacityMw);
+
+    if (Number.isNaN(numericCapacityMw) || numericCapacityMw < 0) {
+      setError("MW order number must be a valid number.");
+      return;
+    }
+
     if (!isEditing && !imageFile) {
       setError("Please select a project image.");
       return;
@@ -209,10 +247,10 @@ const AdminProjects = () => {
       const payload = new FormData();
       payload.append("title", formData.title);
       payload.append("capacity", formData.capacity);
+      payload.append("capacityMw", String(numericCapacityMw));
       payload.append("location", formData.location);
       payload.append("status", formData.status);
 
-      // Send the new image only if the admin selected one
       if (imageFile) {
         payload.append("image", imageFile);
       }
@@ -234,15 +272,15 @@ const AdminProjects = () => {
       if (!response.ok) {
         throw new Error(
           data?.message ||
-          (isEditing ? "Failed to update project" : "Failed to upload project")
+            (isEditing ? "Failed to update project" : "Failed to upload project")
         );
       }
 
       setMessage(
         data?.message ||
-        (isEditing
-          ? "Project updated successfully."
-          : "Project uploaded successfully.")
+          (isEditing
+            ? "Project updated successfully."
+            : "Project uploaded successfully.")
       );
 
       closeModal();
@@ -293,16 +331,16 @@ const AdminProjects = () => {
           <p className="font-[Poppins] text-[12px] font-semibold uppercase tracking-[5px] text-[#ff6b2c]">
             Projects
           </p>
+
           <h1 className="font-[Bebas_Neue] text-[44px] leading-none text-[#1d2b3a] md:text-[56px]">
             Project Management
           </h1>
+
           <p className="mt-2 max-w-2xl font-[Lato] text-[15px] leading-relaxed text-gray-600">
-            Manage ZMS project details. Newly added projects will appear first
-            on the public project page.
+            Manage ZMS project details. Projects are ordered by high MW first.
           </p>
         </div>
 
-        {/* RBAC CHANGE: Show Add Project button only when projects.create permission is true. */}
         {canCreate && (
           <button
             type="button"
@@ -316,10 +354,11 @@ const AdminProjects = () => {
 
       {(message || error) && (
         <div
-          className={`rounded-2xl border px-5 py-4 font-[Poppins] text-sm ${error
-            ? "border-red-200 bg-red-50 text-red-700"
-            : "border-green-200 bg-green-50 text-green-700"
-            }`}
+          className={`rounded-2xl border px-5 py-4 font-[Poppins] text-sm ${
+            error
+              ? "border-red-200 bg-red-50 text-red-700"
+              : "border-green-200 bg-green-50 text-green-700"
+          }`}
         >
           {error || message}
         </div>
@@ -339,24 +378,33 @@ const AdminProjects = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-left">
+          <table className="w-full min-w-[1000px] text-left">
             <thead className="bg-[#1d2b3a] text-white">
               <tr>
                 <th className="px-5 py-4 font-[Poppins] text-xs font-semibold uppercase tracking-[2px]">
                   Image
                 </th>
+
                 <th className="px-5 py-4 font-[Poppins] text-xs font-semibold uppercase tracking-[2px]">
                   Title
                 </th>
+
                 <th className="px-5 py-4 font-[Poppins] text-xs font-semibold uppercase tracking-[2px]">
                   Capacity
                 </th>
+
+                <th className="px-5 py-4 font-[Poppins] text-xs font-semibold uppercase tracking-[2px]">
+                  MW Order
+                </th>
+
                 <th className="px-5 py-4 font-[Poppins] text-xs font-semibold uppercase tracking-[2px]">
                   Location
                 </th>
+
                 <th className="px-5 py-4 font-[Poppins] text-xs font-semibold uppercase tracking-[2px]">
                   Status
                 </th>
+
                 <th className="px-5 py-4 font-[Poppins] text-xs font-semibold uppercase tracking-[2px]">
                   Action
                 </th>
@@ -367,7 +415,7 @@ const AdminProjects = () => {
               {loading ? (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan="7"
                     className="px-5 py-10 text-center font-[Poppins] text-sm text-gray-500"
                   >
                     Loading projects...
@@ -376,7 +424,7 @@ const AdminProjects = () => {
               ) : projects.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan="7"
                     className="px-5 py-10 text-center font-[Poppins] text-sm text-gray-500"
                   >
                     No projects added yet.
@@ -403,25 +451,29 @@ const AdminProjects = () => {
                       {project.capacity}
                     </td>
 
+                    <td className="px-5 py-4 font-[Poppins] text-sm font-semibold text-[#1d2b3a]">
+                      {project.capacityMw ?? 0}
+                    </td>
+
                     <td className="px-5 py-4 font-[Poppins] text-sm text-gray-600">
                       {project.location}
                     </td>
 
                     <td className="px-5 py-4">
                       <span
-                        className={`inline-flex rounded-full px-3 py-1 font-[Poppins] text-xs font-semibold ${project.status === "Completed"
-                          ? "bg-[#ff6b2c]/10 text-[#ff6b2c]"
-                          : project.status === "Ongoing"
-                            ? "bg-[#1d2b3a]/10 text-[#1d2b3a]"
-                            : "bg-amber-100 text-amber-700"
-                          }`}
+                        className={`inline-flex rounded-full px-3 py-1 font-[Poppins] text-xs font-semibold ${
+                          project.status === "Completed"
+                            ? "bg-[#ff6b2c]/10 text-[#ff6b2c]"
+                            : project.status === "Ongoing"
+                              ? "bg-[#1d2b3a]/10 text-[#1d2b3a]"
+                              : "bg-amber-100 text-amber-700"
+                        }`}
                       >
                         {project.status}
                       </span>
                     </td>
 
                     <td className="px-5 py-4">
-                      {/* RBAC CHANGE: Show Edit Project button only when projects.edit permission is true. */}
                       {canEdit && (
                         <button
                           type="button"
@@ -432,7 +484,6 @@ const AdminProjects = () => {
                         </button>
                       )}
 
-                      {/* RBAC CHANGE: Show Delete Project button only when projects.delete permission is true. */}
                       {canDelete && (
                         <button
                           type="button"
@@ -459,6 +510,7 @@ const AdminProjects = () => {
                 <p className="font-[Poppins] text-[12px] font-semibold uppercase tracking-[5px] text-[#ff6b2c]">
                   {isEditing ? "Edit Project" : "Add Project"}
                 </p>
+
                 <h2 className="font-[Bebas_Neue] text-[38px] leading-none text-[#1d2b3a]">
                   {isEditing ? "Update Project Details" : "Add New Project"}
                 </h2>
@@ -480,6 +532,7 @@ const AdminProjects = () => {
                     <span className="mb-2 block font-[Poppins] text-sm font-medium text-[#1d2b3a]">
                       Project Title
                     </span>
+
                     <input
                       type="text"
                       name="title"
@@ -493,15 +546,16 @@ const AdminProjects = () => {
 
                   <label className="block">
                     <span className="mb-2 block font-[Poppins] text-sm font-medium text-[#1d2b3a]">
-                      Capacity / MW
+                      Capacity Display Text
                     </span>
+
                     <input
                       type="text"
                       name="capacity"
                       value={formData.capacity}
                       onChange={handleChange}
                       required
-                      placeholder='Example: "130MW"'
+                      placeholder='Example: "130 MW"'
                       className="w-full rounded-2xl border border-gray-300 px-4 py-3 font-[Lato] text-[#1d2b3a] outline-none transition focus:border-[#ff6b2c]"
                     />
                   </label>
@@ -510,8 +564,31 @@ const AdminProjects = () => {
                 <div className="grid gap-5 md:grid-cols-2">
                   <label className="block">
                     <span className="mb-2 block font-[Poppins] text-sm font-medium text-[#1d2b3a]">
+                      MW Order Number
+                    </span>
+
+                    <input
+                      type="number"
+                      name="capacityMw"
+                      value={formData.capacityMw}
+                      onChange={handleChange}
+                      required
+                      min="0"
+                      step="0.01"
+                      placeholder="Example: 130"
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 font-[Lato] text-[#1d2b3a] outline-none transition focus:border-[#ff6b2c]"
+                    />
+
+                    <p className="mt-2 font-[Poppins] text-xs text-gray-500">
+                      Higher number projects will show first on the website.
+                    </p>
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-2 block font-[Poppins] text-sm font-medium text-[#1d2b3a]">
                       Location
                     </span>
+
                     <input
                       type="text"
                       name="location"
@@ -522,11 +599,14 @@ const AdminProjects = () => {
                       className="w-full rounded-2xl border border-gray-300 px-4 py-3 font-[Lato] text-[#1d2b3a] outline-none transition focus:border-[#ff6b2c]"
                     />
                   </label>
+                </div>
 
+                <div className="grid gap-5 md:grid-cols-2">
                   <label className="block">
                     <span className="mb-2 block font-[Poppins] text-sm font-medium text-[#1d2b3a]">
                       Status
                     </span>
+
                     <select
                       name="status"
                       value={formData.status}
@@ -557,7 +637,7 @@ const AdminProjects = () => {
                   <p className="mt-2 font-[Poppins] text-xs text-gray-500">
                     {isEditing
                       ? "If no new image is selected, the old image will remain unchanged."
-                      : "Recommended size: 1200 &times; 800px. Max file size: 10MB. JPG, PNG, WEBP only."}
+                      : "Recommended size: 1200 × 800px. Max file size: 10MB. JPG, PNG, WEBP only."}
                   </p>
                 </label>
 
@@ -623,9 +703,9 @@ const AdminProjects = () => {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span>Latest upload</span>
+                    <span>Project order</span>
                     <span className="font-semibold text-white">
-                      Shown first on site
+                      High MW first
                     </span>
                   </div>
                 </div>

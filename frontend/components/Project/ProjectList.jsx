@@ -19,6 +19,20 @@ const resolveImageSrc = (image) => {
   return `/${image}`;
 };
 
+const getProjectMw = (project) => {
+  const directMw = Number(project?.capacityMw);
+
+  if (!Number.isNaN(directMw)) {
+    return directMw;
+  }
+
+  const capacityText = String(project?.capacity || "");
+  const extractedMw = capacityText.match(/[\d.]+/);
+  const fallbackMw = extractedMw ? Number(extractedMw[0]) : 0;
+
+  return Number.isNaN(fallbackMw) ? 0 : fallbackMw;
+};
+
 function ProjectList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [projects, setProjects] = useState([]);
@@ -39,8 +53,19 @@ function ProjectList() {
           throw new Error(data?.message || "Failed to load projects");
         }
 
-        // The backend already returns the newest projects first.
-        setProjects(Array.isArray(data) ? data : []);
+        const sortedProjects = Array.isArray(data)
+          ? [...data].sort((a, b) => {
+              const mwDifference = getProjectMw(b) - getProjectMw(a);
+
+              if (mwDifference !== 0) {
+                return mwDifference;
+              }
+
+              return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+            })
+          : [];
+
+        setProjects(sortedProjects);
         setCurrentPage(1);
       } catch (loadError) {
         setError(loadError.message);
@@ -54,7 +79,10 @@ function ProjectList() {
 
   const totalPages = Math.ceil(projects.length / PROJECTS_PER_PAGE);
   const startIndex = (currentPage - 1) * PROJECTS_PER_PAGE;
-  const currentProjects = projects.slice(startIndex, startIndex + PROJECTS_PER_PAGE);
+  const currentProjects = projects.slice(
+    startIndex,
+    startIndex + PROJECTS_PER_PAGE
+  );
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -78,7 +106,8 @@ function ProjectList() {
           </h2>
 
           <p className="mt-4 font-[Lato] text-base leading-relaxed text-gray-600 md:text-lg">
-            We deliver reliable structural solutions with strong fabrication quality, professional execution, and timely project completion.
+            We deliver reliable structural solutions with strong fabrication
+            quality, professional execution, and timely project completion.
           </p>
         </div>
 
@@ -122,10 +151,11 @@ function ProjectList() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
                     <span
-                      className={`absolute left-5 top-5 rounded-full px-4 py-2 font-[Poppins] text-xs text-white ${project.status === "Completed"
-                        ? "bg-[#ff6b2c]"
-                        : "bg-[#1d2b3a]"
-                        }`}
+                      className={`absolute left-5 top-5 rounded-full px-4 py-2 font-[Poppins] text-xs text-white ${
+                        project.status === "Completed"
+                          ? "bg-[#ff6b2c]"
+                          : "bg-[#1d2b3a]"
+                      }`}
                     >
                       {project.status}
                     </span>
@@ -161,7 +191,9 @@ function ProjectList() {
                     <div className="mb-5 h-px w-full bg-gray-200" />
 
                     <p className="font-[Lato] text-[15px] leading-relaxed text-gray-600">
-                      High-quality industrial structural project completed with precision engineering, durable materials, and strong execution standards.
+                      High-quality industrial structural project completed with
+                      precision engineering, durable materials, and strong
+                      execution standards.
                     </p>
                   </div>
                 </div>
@@ -173,36 +205,42 @@ function ProjectList() {
         {totalPages > 1 && (
           <div className="mt-14 flex items-center justify-center gap-3">
             <button
+              type="button"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`rounded-full px-5 py-3 font-[Poppins] text-sm font-semibold transition-all duration-300 ${currentPage === 1
-                ? "cursor-not-allowed bg-gray-200 text-gray-400"
-                : "bg-[#1d2b3a] text-white hover:bg-[#ff6b2c]"
-                }`}
+              className={`rounded-full px-5 py-3 font-[Poppins] text-sm font-semibold transition-all duration-300 ${
+                currentPage === 1
+                  ? "cursor-not-allowed bg-gray-200 text-gray-400"
+                  : "bg-[#1d2b3a] text-white hover:bg-[#ff6b2c]"
+              }`}
             >
               Prev
             </button>
 
             {Array.from({ length: totalPages }, (_, index) => (
               <button
+                type="button"
                 key={index}
                 onClick={() => handlePageChange(index + 1)}
-                className={`h-11 w-11 rounded-full font-[Poppins] text-sm font-semibold transition-all duration-300 ${currentPage === index + 1
-                  ? "bg-[#ff6b2c] text-white"
-                  : "border border-gray-300 bg-white text-[#1d2b3a] hover:bg-[#1d2b3a] hover:text-white"
-                  }`}
+                className={`h-11 w-11 rounded-full font-[Poppins] text-sm font-semibold transition-all duration-300 ${
+                  currentPage === index + 1
+                    ? "bg-[#ff6b2c] text-white"
+                    : "border border-gray-300 bg-white text-[#1d2b3a] hover:bg-[#1d2b3a] hover:text-white"
+                }`}
               >
                 {index + 1}
               </button>
             ))}
 
             <button
+              type="button"
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className={`rounded-full px-5 py-3 font-[Poppins] text-sm font-semibold transition-all duration-300 ${currentPage === totalPages
-                ? "cursor-not-allowed bg-gray-200 text-gray-400"
-                : "bg-[#1d2b3a] text-white hover:bg-[#ff6b2c]"
-                }`}
+              className={`rounded-full px-5 py-3 font-[Poppins] text-sm font-semibold transition-all duration-300 ${
+                currentPage === totalPages
+                  ? "cursor-not-allowed bg-gray-200 text-gray-400"
+                  : "bg-[#1d2b3a] text-white hover:bg-[#ff6b2c]"
+              }`}
             >
               Next
             </button>

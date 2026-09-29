@@ -11,13 +11,27 @@ const normalizeStatus = (status) => {
   return "Completed";
 };
 
+// Convert capacity or capacityMw into a valid number.
+const normalizeCapacityMw = (capacityMw, capacity = "") => {
+  const directMw = Number(capacityMw);
+
+  if (!Number.isNaN(directMw) && directMw >= 0) {
+    return directMw;
+  }
+
+  const extractedMw = String(capacity).match(/[\d.]+/);
+  const fallbackMw = extractedMw ? Number(extractedMw[0]) : 0;
+
+  return Number.isNaN(fallbackMw) ? 0 : fallbackMw;
+};
+
 // -------------------------------
 // Create Project
 // Save a new project from the admin upload form
 // -------------------------------
 export const createProject = async (req, res) => {
   try {
-    const { title, capacity, location, status } = req.body;
+    const { title, capacity, capacityMw, location, status } = req.body;
 
     // Validate required text fields
     if (!title || !capacity || !location) {
@@ -45,10 +59,13 @@ export const createProject = async (req, res) => {
       });
     }
 
+    const normalizedCapacityMw = normalizeCapacityMw(capacityMw, capacity);
+
     // Save the project details in MongoDB
     const project = await Project.create({
       title: title.trim(),
       capacity: capacity.trim(),
+      capacityMw: normalizedCapacityMw,
       location: location.trim(),
       status: normalizeStatus(status),
       image: imageUrl,
@@ -74,10 +91,14 @@ export const createProject = async (req, res) => {
 // -------------------------------
 // Get Projects
 // Fetch projects for the public website and admin table
+// High MW projects should show first
 // -------------------------------
 export const getProjects = async (req, res) => {
   try {
-    const projects = await Project.find().sort({ createdAt: -1 });
+    const projects = await Project.find().sort({
+      capacityMw: -1,
+      createdAt: -1,
+    });
 
     return res.status(200).json(projects);
   } catch (error) {
@@ -96,7 +117,7 @@ export const getProjects = async (req, res) => {
 // -------------------------------
 export const updateProject = async (req, res) => {
   try {
-    const { title, capacity, location, status } = req.body;
+    const { title, capacity, capacityMw, location, status } = req.body;
 
     // Validate required text fields
     if (!title || !capacity || !location) {
@@ -114,9 +135,12 @@ export const updateProject = async (req, res) => {
       });
     }
 
+    const normalizedCapacityMw = normalizeCapacityMw(capacityMw, capacity);
+
     // Update text fields
     project.title = title.trim();
     project.capacity = capacity.trim();
+    project.capacityMw = normalizedCapacityMw;
     project.location = location.trim();
     project.status = normalizeStatus(status);
 
