@@ -4,6 +4,9 @@ import BlogHero from "@/components/Blog/BlogHero";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
+  alternates: {
+    canonical: "https://www.zmsipl.com/blog",
+  },
   title: "Blogs",
   description:
     "Explore the latest blogs, steel structure insights, fabrication updates, and industry news from ZMSIPL.",

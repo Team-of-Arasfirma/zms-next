@@ -87,13 +87,16 @@ async function getSubCategories(categorySlug) {
 }
 
 export async function generateMetadata({ params }) {
-  const { subCategorySlug } = await params;
+  const { categorySlug, subCategorySlug } = await params;
   const readableSubCategory = subCategorySlug
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
   return {
+    alternates: {
+      canonical: `https://www.zmsipl.com/blog/category/${encodeURIComponent(categorySlug)}/${encodeURIComponent(subCategorySlug)}`,
+    },
     title: `${readableSubCategory} Blogs`,
     description: `Read ${readableSubCategory} related blogs and updates from ZMSIPL.`,
   };

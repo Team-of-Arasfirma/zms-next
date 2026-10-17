@@ -94,6 +94,9 @@ export async function generateMetadata({ params }) {
     .join(" ");
 
   return {
+    alternates: {
+      canonical: `https://www.zmsipl.com/blog/category/${encodeURIComponent(categorySlug)}`,
+    },
     title: `${readableCategory} Blogs`,
     description: `Read ${readableCategory} related blogs and updates from ZMSIPL.`,
   };
