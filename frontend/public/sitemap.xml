@@ -7,4 +7,7 @@
     <loc>https://www.zmsipl.com/sitemap-blog.xml</loc>
   </sitemap>
 
+  <sitemap>
+    <loc>https://www.zmsipl.com/sitemap-products.xml</loc>
+  </sitemap>
 </sitemapindex>

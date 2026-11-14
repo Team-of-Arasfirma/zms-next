@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import CatalogueImage from "./CatalogueImage";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 
@@ -14,60 +15,16 @@ const initialQuoteForm = {
   gstNumber: "",
   mountType: "",
   mw: "",
+  message: "",
 };
 
-const normalizeImageSrc = (src) => {
-  if (!src) {
-    return "";
-  }
-
-  if (/^(https?:|data:|blob:|\/)/.test(src)) {
-    return src;
-  }
-
-  return `/${src}`;
-};
-
-const ProductDetails = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
+const ProductDetails = ({ products = [], detailView = false }) => {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [quoteForm, setQuoteForm] = useState(initialQuoteForm);
   const [quoteSubmitting, setQuoteSubmitting] = useState(false);
   const [quoteMessage, setQuoteMessage] = useState("");
   const [quoteError, setQuoteError] = useState("");
-
-  // Fetch active products from the backend.
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const response = await fetch(`${API_BASE}/api/products`);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data?.message || "Failed to load products");
-      }
-
-      const activeProducts = Array.isArray(data)
-        ? data.filter((product) => product.status === "Active")
-        : [];
-
-      setProducts(activeProducts);
-    } catch (fetchError) {
-      setError(fetchError.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
 
   // Open quote popup for the selected product.
   const openQuoteModal = (product) => {
@@ -108,11 +65,10 @@ const ProductDetails = () => {
       !quoteForm.companyName.trim() ||
       !quoteForm.inquiryName.trim() ||
       !quoteForm.callNumber.trim() ||
-      !quoteForm.mountType.trim() ||
-      !quoteForm.mw.trim()
+      (selectedProduct?.enquiryType !== "general" && (!quoteForm.mountType.trim() || !quoteForm.mw.trim()))
     ) {
       setQuoteError(
-        "Company name, inquiry name, call number, mount type, and MW are required."
+        selectedProduct?.enquiryType === "general" ? "Company name, inquiry name, and call number are required." : "Company name, inquiry name, call number, mount type, and MW are required."
       );
       return;
     }
@@ -126,8 +82,18 @@ const ProductDetails = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...quoteForm,
+          companyName: quoteForm.companyName,
+          inquiryName: quoteForm.inquiryName,
+          callNumber: quoteForm.callNumber,
+          gstNumber: quoteForm.gstNumber,
           productName: selectedProduct?.name || "",
+          ...(selectedProduct?.enquiryType === "general" ? {
+            enquiryType: "general",
+            productSlug: selectedProduct.detailSlug,
+            categoryName: selectedProduct.categoryName || "",
+            categorySlug: selectedProduct.categorySlug || "",
+            message: quoteForm.message,
+          } : { mountType: quoteForm.mountType, mw: quoteForm.mw }),
         }),
       });
 
@@ -150,28 +116,6 @@ const ProductDetails = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <section className="w-full bg-white py-16 sm:py-20 lg:py-24">
-        <div className="mx-auto max-w-[1280px] px-6 text-center sm:px-10 lg:px-20">
-          <p className="font-[Poppins] text-sm text-gray-500">
-            Loading products...
-          </p>
-        </div>
-      </section>
-    );
-  }
-
-  if (error) {
-    return (
-      <section className="w-full bg-white py-16 sm:py-20 lg:py-24">
-        <div className="mx-auto max-w-[1280px] px-6 text-center sm:px-10 lg:px-20">
-          <p className="font-[Poppins] text-sm text-red-600">{error}</p>
-        </div>
-      </section>
-    );
-  }
-
   if (products.length === 0) {
     return (
       <section className="w-full bg-white py-16 sm:py-20 lg:py-24">
@@ -191,7 +135,7 @@ const ProductDetails = () => {
           <div className="space-y-20 lg:space-y-24">
             {products.map((product, index) => {
               const isReverse = index % 2 !== 0;
-              const imageSrc = normalizeImageSrc(product.image);
+              const ProductHeading = detailView ? "h1" : "h2";
 
               return (
                 <div
@@ -208,17 +152,7 @@ const ProductDetails = () => {
                     transition={{ duration: 0.8, ease: "easeOut" }}
                   >
                     <div className="relative h-[420px] min-h-[420px] w-full lg:h-[620px] lg:min-h-[620px]">
-                      {imageSrc ? (
-                        <Image
-                          src={imageSrc}
-                          alt={product.name}
-                          fill
-                          sizes="(max-width: 1024px) 100vw, 50vw"
-                          loading="lazy"
-                          quality={70}
-                          className="rounded-[10px] object-contain object-center"
-                        />
-                      ) : null}
+                      <CatalogueImage src={product.image} alt={product.name} sizes="(max-width: 1024px) 100vw, 50vw" />
                     </div>
                   </motion.div>
 
@@ -230,12 +164,12 @@ const ProductDetails = () => {
                     viewport={{ once: true, amount: 0.3 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                   >
-                    <h2
+                    <ProductHeading
                       className="mb-5 text-[32px] leading-none text-[#111111] sm:text-[38px] lg:text-[42px]"
                       style={{ fontFamily: "DM Serif Display, serif" }}
                     >
                       {product.name}
-                    </h2>
+                    </ProductHeading>
 
                     {product.description && (
                       <p
@@ -278,14 +212,12 @@ const ProductDetails = () => {
                       ))}
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => openQuoteModal(product)}
-                      className="inline-flex w-fit rounded-[4px] bg-[#ff6b2c] px-5 py-3 text-[13px] font-semibold text-white transition-all duration-300 hover:bg-[#e85b1d]"
-                      style={{ fontFamily: "Poppins, sans-serif" }}
-                    >
-                      Request Quote
-                    </button>
+                    <div className="flex flex-wrap gap-3">
+                      {!detailView && <Link href={product.detailPath} className="inline-flex rounded-[4px] border border-[#ff6b2c] px-5 py-3 text-[13px] font-semibold text-[#ff6b2c] hover:bg-orange-50">View Product</Link>}
+                      <button type="button" onClick={() => openQuoteModal(product)} className="inline-flex w-fit rounded-[4px] bg-[#ff6b2c] px-5 py-3 text-[13px] font-semibold text-white hover:bg-[#e85b1d]">
+                        {detailView || product.enquiryType === "general" ? "Enquire Now" : "Request Quote"}
+                      </button>
+                    </div>
                   </motion.div>
                 </div>
               );
@@ -310,7 +242,7 @@ const ProductDetails = () => {
               className="pr-12 text-[34px] leading-none text-[#1d2b3a]"
               style={{ fontFamily: "Bebas Neue, sans-serif" }}
             >
-              Request A Quote
+              {selectedProduct?.enquiryType === "general" ? "Product Enquiry" : "Request A Quote"}
             </h2>
 
             <p
@@ -374,6 +306,13 @@ const ProductDetails = () => {
                 className="w-full rounded-md border border-gray-300 px-4 py-3 font-[Poppins] text-sm outline-none transition focus:border-[#ff6b2c]"
               />
 
+              {selectedProduct?.enquiryType === "general" ? (
+                <label className="block font-[Poppins] text-sm text-gray-600">
+                  Your requirement (optional)
+                  <textarea name="message" value={quoteForm.message} onChange={handleQuoteChange} rows={4} maxLength={2000} className="mt-2 w-full rounded-md border border-gray-300 px-4 py-3 outline-none focus:border-[#ff6b2c]" />
+                </label>
+              ) : (
+                <>
               <select
                 name="mountType"
                 value={quoteForm.mountType}
@@ -396,12 +335,14 @@ const ProductDetails = () => {
                 className="w-full rounded-md border border-gray-300 px-4 py-3 font-[Poppins] text-sm outline-none transition focus:border-[#ff6b2c]"
               />
 
+                </>
+              )}
               <button
                 type="submit"
                 disabled={quoteSubmitting}
                 className="w-full rounded-md bg-[#ff6b2c] px-5 py-3 font-[Poppins] text-sm font-semibold text-white transition hover:bg-[#e85b1d] disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {quoteSubmitting ? "Submitting..." : "Submit Quote Request"}
+                {quoteSubmitting ? "Submitting..." : selectedProduct?.enquiryType === "general" ? "Send Enquiry" : "Submit Quote Request"}
               </button>
             </form>
           </div>

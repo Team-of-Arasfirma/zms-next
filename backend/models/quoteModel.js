@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const quoteSchema = new mongoose.Schema(
   {
+    // Defaults preserve the meaning of historical records and existing clients.
+    enquiryType: { type: String, enum: ["solar", "general"], default: "solar" },
+    categoryName: { type: String, default: "", trim: true },
+    productSlug: { type: String, default: "", trim: true },
+    categorySlug: { type: String, default: "", trim: true },
+    message: { type: String, default: "", trim: true },
     companyName: {
       type: String,
       required: true,
@@ -24,12 +30,12 @@ const quoteSchema = new mongoose.Schema(
     },
     mountType: {
       type: String,
-      required: true,
+      required: function () { return this.enquiryType !== "general"; },
       trim: true,
     },
     mw: {
       type: String,
-      required: true,
+      required: function () { return this.enquiryType !== "general"; },
       trim: true,
     },
     productName: {

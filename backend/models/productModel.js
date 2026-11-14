@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { isProductSlug } from "../utils/productSlug.js";
 
 const specificationSchema = new mongoose.Schema(
   {
@@ -24,6 +25,32 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+    },
+
+    // Optional: legacy products keep their existing enquiry fallback until edited.
+    enquiryType: {
+      type: String,
+      enum: ["solar", "general"],
+      default: undefined,
+    },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ProductCategory",
+      default: null,
+    },
+
+    slug: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: null,
+      validate: {
+        validator(value) {
+          // Leave legacy values unchanged during unrelated updates.
+          return value == null || (!this.isNew && !this.isModified("slug")) || isProductSlug(value);
+        },
+        message: "Invalid or reserved product slug",
+      },
     },
 
     thickness: {
@@ -67,7 +94,15 @@ const productSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    autoIndex: false,
+    autoCreate: false,
   }
+);
+
+// Declaration only: provision this index separately after auditing legacy slugs.
+productSchema.index(
+  { slug: 1 },
+  { unique: true, partialFilterExpression: { slug: { $type: "string" } } }
 );
 
 const Product = mongoose.model("Product", productSchema);

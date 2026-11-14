@@ -31,6 +31,7 @@ const menuItems = [
   { name: "Dashboard", path: "/admin/dashboard", moduleKey: "dashboard" },
   { name: "Blogs", path: "/admin/blogs", moduleKey: "blogs" },
   { name: "Products", path: "/admin/products", moduleKey: "products" },
+  { name: "Product Categories", path: "/admin/product-categories", moduleKey: "productCategories" },
   { name: "Projects", path: "/admin/projects", moduleKey: "projects" },
   { name: "Careers", path: "/admin/careers", moduleKey: "careers" },
   {
@@ -160,8 +161,8 @@ const AdminLayout = ({ children }) => {
         </div>
       </aside>
 
-      <main className="min-h-screen flex-1 md:ml-[255px]">
-        <header className="sticky top-0 z-40 flex h-[70px] items-center justify-between border-b border-gray-200 bg-white px-5 md:px-7">
+      <main className="min-h-screen min-w-0 flex-1 md:ml-[255px]">
+        <header className="sticky top-0 z-40 flex min-h-[70px] flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-white px-5 py-3 md:px-7">
           <h2 className="text-[18px] font-bold text-[#111c2e] md:text-[20px]">
             Welcome, {adminUser?.name || "Admin"}
           </h2>
@@ -186,6 +187,13 @@ const AdminLayout = ({ children }) => {
           </div>
         </header>
 
+        <nav aria-label="Admin mobile navigation" className="flex gap-2 overflow-x-auto border-b border-gray-200 bg-white px-5 py-3 md:hidden">
+          {visibleMenuItems.map((item) => (
+            <Link key={item.path} href={item.path} aria-current={pathname === item.path ? "page" : undefined} className={`shrink-0 rounded-md px-3 py-2 text-sm font-semibold ${pathname === item.path ? "bg-orange-500 text-white" : "bg-gray-100 text-[#111c2e]"}`}>
+              {item.name}
+            </Link>
+          ))}
+        </nav>
         <div className="p-5 md:p-7">{children}</div>
       </main>
     </section>

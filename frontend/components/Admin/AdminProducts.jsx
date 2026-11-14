@@ -8,6 +8,17 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
+// Build a URL-safe slug from a product name.
+const generateProductSlug = (name) =>
+  String(name || "")
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 200)
+    .replace(/-+$/g, "");
+
 const defaultSpecifications = [
   { label: "Material", value: "" },
   { label: "Steel Grade", value: "" },
@@ -24,6 +35,9 @@ const defaultSpecifications = [
 ];
 
 const initialFormState = {
+  category: "",
+  enquiryType: "general",
+  slug: "",
   name: "",
   thickness: "",
   materialGrade: "",
@@ -33,10 +47,25 @@ const initialFormState = {
   specifications: defaultSpecifications,
 };
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("zmsAdminToken");
+
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+};
+
 const AdminProducts = () => {
   const productImageInputRef = useRef(null);
 
   const [products, setProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoryError, setCategoryError] = useState("");
+  const [originalCategory, setOriginalCategory] = useState("");
   const [formData, setFormData] = useState(initialFormState);
 
   const [productImageFile, setProductImageFile] = useState(null);
@@ -57,14 +86,6 @@ const AdminProducts = () => {
   const canEdit = hasPermission("products", "edit");
   const canDelete = hasPermission("products", "delete");
 
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem("zmsAdminToken");
-
-    return {
-      Authorization: `Bearer ${token}`,
-    };
-  };
-
   // Return a fresh copy of default specifications.
   const getDefaultSpecifications = () => {
     return defaultSpecifications.map((specification) => ({
@@ -78,7 +99,7 @@ const AdminProducts = () => {
       setLoading(true);
       setError("");
 
-      const response = await fetch(`${API_BASE}/api/products`);
+      const response = await fetch(`${API_BASE}/api/products/admin`, { headers: getAuthHeaders(), cache: "no-store" });
       const data = await response.json();
 
       if (!response.ok) {
@@ -99,6 +120,30 @@ const AdminProducts = () => {
 
   useEffect(() => {
     fetchProducts();
+    let cancelled = false;
+    const loadCategories = async () => {
+      // The admin endpoint includes inactive categories and requires category view permission.
+      if (!hasPermission("productCategories", "view")) {
+        setCategoryError("Category selection requires Product Categories view permission. Existing assignments will be preserved.");
+        setCategoriesLoading(false);
+        return;
+      }
+      try {
+        const response = await fetch(`${API_BASE}/api/admin/product-categories`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("zmsAdminToken")}` },
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.message || "Failed to load categories.");
+        if (!Array.isArray(data)) throw new Error("Invalid category response.");
+        if (!cancelled) setCategories([...data].sort((a, b) => a.order - b.order));
+      } catch (loadError) {
+        if (!cancelled) setCategoryError(loadError.message);
+      } finally {
+        if (!cancelled) setCategoriesLoading(false);
+      }
+    };
+    loadCategories();
+    return () => { cancelled = true; };
   }, []);
 
   // Clear all form values and image preview.
@@ -108,6 +153,7 @@ const AdminProducts = () => {
       specifications: getDefaultSpecifications(),
     });
 
+    setOriginalCategory("");
     setProductImageFile(null);
     setProductImagePreview("");
     setProductImageName("");
@@ -140,6 +186,10 @@ const AdminProducts = () => {
     setFormData((current) => ({
       ...current,
       [name]: value,
+      // Auto-generate on new products only; preserve existing product URLs.
+      ...(name === "name" && !isEditing
+        ? { slug: generateProductSlug(value) }
+        : {}),
     }));
   };
 
@@ -262,6 +312,17 @@ const AdminProducts = () => {
 
       const payload = new FormData();
 
+      // Omit unchanged category values, preserving existing assignments.
+      if (formData.category !== originalCategory) {
+        payload.append("category", formData.category);
+      }
+      if (formData.enquiryType === "solar" || formData.enquiryType === "general") {
+        payload.append("enquiryType", formData.enquiryType);
+      }
+      const originalSlug = products.find((product) => product._id === editingProductId)?.slug || "";
+      if (formData.slug.trim() && formData.slug !== originalSlug) {
+        payload.append("slug", formData.slug.trim());
+      }
       payload.append("name", formData.name);
       payload.append("thickness", formData.thickness);
       payload.append("materialGrade", formData.materialGrade);
@@ -318,8 +379,12 @@ const AdminProducts = () => {
   // Fill the form with selected product data when Edit is clicked.
   const handleEdit = (product) => {
     setEditingProductId(product._id);
+    setOriginalCategory(product.category?._id || product.category || "");
 
     setFormData({
+      category: product.category?._id || product.category || "",
+      enquiryType: ["solar", "general"].includes(product.enquiryType) ? product.enquiryType : "",
+      slug: product.slug || "",
       name: product.name || "",
       thickness: product.thickness || "",
       materialGrade: product.materialGrade || "",
@@ -377,6 +442,37 @@ const AdminProducts = () => {
     }
   };
 
+  // Only filter the admin table. The complete product list remains available for editing.
+  const getProductCategoryId = (product) => {
+    const value = product.category;
+    if (!value) return "";
+    return String(typeof value === "object" ? value._id || "" : value);
+  };
+
+  const categoryNameById = new Map(
+    categories.map((category) => [String(category._id), category.name])
+  );
+
+  const filteredProducts = products.filter((product) => {
+    const productCategoryId = getProductCategoryId(product);
+    const term = searchTerm.trim().toLowerCase();
+    const matchesSearch =
+      !term ||
+      String(product.name || "").toLowerCase().includes(term) ||
+      String(product.slug || "").toLowerCase().includes(term);
+
+    const matchesCategory =
+      categoryFilter === "all" ||
+      (categoryFilter === "uncategorized"
+        ? !productCategoryId
+        : categoryFilter === productCategoryId);
+
+    const matchesStatus =
+      statusFilter === "all" || product.status === statusFilter;
+
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -405,13 +501,69 @@ const AdminProducts = () => {
         </div>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
-        <table className="w-full min-w-[1050px] text-left">
+      {/* Search and filter admin products without changing backend data */}
+      <div className="mt-6 grid gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_220px_170px]">
+        <label className="block">
+          <span className="mb-1.5 block text-xs font-semibold text-[#111c2e]">
+            Search products
+          </span>
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Search by product name or slug"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-orange-500"
+          />
+        </label>
+
+        <label className="block">
+          <span className="mb-1.5 block text-xs font-semibold text-[#111c2e]">
+            Category
+          </span>
+          <select
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value)}
+            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500"
+          >
+            <option value="all">All Categories</option>
+            <option value="uncategorized">Uncategorized</option>
+            {categories.map((category) => (
+              <option key={category._id} value={String(category._id)}>
+                {category.name}{category.status === "Inactive" ? " (Inactive)" : ""}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block">
+          <span className="mb-1.5 block text-xs font-semibold text-[#111c2e]">
+            Status
+          </span>
+          <select
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value)}
+            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500"
+          >
+            <option value="all">All Statuses</option>
+            <option value="Active">Active</option>
+            <option value="Draft">Draft</option>
+          </select>
+        </label>
+      </div>
+
+      <p className="mt-3 text-xs text-gray-500" role="status">
+        {loading ? "Loading products..." : `Showing ${filteredProducts.length} of ${products.length} products`}
+        {categoryError ? " · Category list unavailable; assignments remain unchanged." : ""}
+      </p>
+
+      <div className="mt-3 overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
+        <table className="w-full min-w-[1180px] text-left">
           <thead className="bg-[#111c2e] text-white">
             <tr>
               <th className="px-4 py-4 text-sm">S.No</th>
               <th className="px-4 py-4 text-sm">Image</th>
               <th className="px-4 py-4 text-sm">Product Name</th>
+              <th className="px-4 py-4 text-sm">Category</th>
               <th className="px-4 py-4 text-sm">Thickness</th>
               <th className="px-4 py-4 text-sm">Material Grade</th>
               <th className="px-4 py-4 text-sm">Order</th>
@@ -423,18 +575,24 @@ const AdminProducts = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
+                <td colSpan="9" className="px-4 py-8 text-center text-gray-500">
                   Loading products...
                 </td>
               </tr>
             ) : products.length === 0 ? (
               <tr>
-                <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
+                <td colSpan="9" className="px-4 py-8 text-center text-gray-500">
                   No products added yet.
                 </td>
               </tr>
+            ) : filteredProducts.length === 0 ? (
+              <tr>
+                <td colSpan="9" className="px-4 py-8 text-center text-sm text-gray-500">
+                  No products match the selected filters.
+                </td>
+              </tr>
             ) : (
-              products.map((product, index) => (
+              filteredProducts.map((product, index) => (
                 <tr key={product._id} className="border-t border-gray-100">
                   <td className="px-4 py-4 text-sm text-gray-700">
                     {index + 1}
@@ -452,6 +610,14 @@ const AdminProducts = () => {
 
                   <td className="px-4 py-4 text-sm font-semibold text-[#111c2e]">
                     {product.name}
+                  </td>
+
+                  <td className="px-4 py-4 text-sm text-gray-600">
+                    {getProductCategoryId(product)
+                      ? categoryNameById.get(getProductCategoryId(product)) ||
+                        (typeof product.category === "object" && product.category?.name) ||
+                        "Category unavailable"
+                      : "Uncategorized"}
                   </td>
 
                   <td className="px-4 py-4 text-sm text-gray-600">
@@ -531,6 +697,28 @@ const AdminProducts = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-[#111c2e]">Product Category (optional)</span>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  disabled={categoriesLoading || Boolean(categoryError) || submitting}
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-orange-500 disabled:bg-gray-100"
+                >
+                  <option value="">{categoriesLoading ? "Loading categories..." : "Uncategorized"}</option>
+                  {formData.category && !categories.some((category) => category._id === formData.category) && (
+                    <option value={formData.category}>Current category (details unavailable)</option>
+                  )}
+                  {categories.map((category) => (
+                    <option key={category._id} value={category._id}>{category.name}{category.status === "Inactive" ? " (Inactive)" : ""}</option>
+                  ))}
+                </select>
+                <span className="mt-2 block text-xs text-gray-500">
+                  {categoryError || (originalCategory ? "Choose another category, or select Uncategorized to remove the assignment." : "Choose a category, or leave the product uncategorized.")}
+                </span>
+              </label>
+
               <div className="grid gap-5 md:grid-cols-2">
                 <label className="block">
                   <span className="mb-2 block text-sm font-semibold text-[#111c2e]">

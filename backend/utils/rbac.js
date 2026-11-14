@@ -4,6 +4,7 @@ export const RBAC_MODULES = [
   "dashboard",
   "blogs",
   "products",
+  "productCategories",
   "projects",
   "careers",
   "applications",
@@ -114,4 +115,3 @@ export const hasPermission = (admin, moduleKey, actionKey) => {
   const permissions = normalizePermissions(admin.permissions);
   return Boolean(permissions[moduleKey]?.[actionKey]);
 };
-

@@ -1,10 +1,11 @@
-﻿import express from "express";
+import express from "express";
 import multer from "multer";
 
 import {
   createProduct,
   deleteProduct,
   getProducts,
+  getAdminProducts,
   updateProduct,
 } from "../controllers/productController.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
@@ -37,7 +38,10 @@ const uploadProductImage = (req, res, next) => {
   });
 };
 
-// Get all products
+// Protected administrative list includes Active and Draft products.
+router.get("/admin", requireAuth, requirePermission("products", "view"), getAdminProducts);
+
+// Public list includes Active products only
 router.get("/", getProducts);
 
 // RBAC CHANGE: Protect product create, update, and delete actions.

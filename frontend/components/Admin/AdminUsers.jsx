@@ -8,6 +8,7 @@ const modules = [
   "dashboard",
   "blogs",
   "products",
+  "productCategories",
   "projects",
   "careers",
   "applications",

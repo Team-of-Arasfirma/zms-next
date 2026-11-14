@@ -1,9 +1,10 @@
-﻿import express from "express";
+import express from "express";
 import cors from "cors";
 
 import projectRoutes from "./routes/projectRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import { publicCategoryRouter, adminCategoryRouter } from "./routes/productCategoryRoutes.js";
 import quoteRoutes from "./routes/quoteRoutes.js";
 import careerRoutes from "./routes/careerRoutes.js";
 import applicationRoutes from "./routes/applicationRoutes.js";
@@ -83,6 +84,8 @@ app.get("/", (req, res) => {
 app.use("/api/projects", projectRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/product-categories", publicCategoryRouter);
+app.use("/api/admin/product-categories", adminCategoryRouter);
 app.use("/api/quotes", quoteRoutes);
 app.use("/api/careers", careerRoutes);
 app.use("/api/applications", applicationRoutes);

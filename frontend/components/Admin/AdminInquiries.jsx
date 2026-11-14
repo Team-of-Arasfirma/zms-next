@@ -244,14 +244,17 @@ const AdminInquiries = () => {
 
                   <td className="px-4 py-4 text-sm text-gray-600">
                     {inquiry.productName || "-"}
+                    <span className="mt-1 block text-xs text-gray-500">{inquiry.enquiryType === "general" ? "General product enquiry" : "Solar enquiry"}</span>
+                    {inquiry.categoryName && <span className="mt-1 block text-xs">{inquiry.categoryName}</span>}
+                    {inquiry.message && <p className="mt-2 max-w-xs whitespace-pre-wrap break-words text-xs">{inquiry.message}</p>}
                   </td>
 
                   <td className="px-4 py-4 text-sm text-gray-600">
-                    {inquiry.mountType}
+                    {inquiry.mountType || "—"}
                   </td>
 
                   <td className="px-4 py-4 text-sm text-gray-600">
-                    {inquiry.mw}
+                    {inquiry.mw || "—"}
                   </td>
 
                   <td className="px-4 py-4">

@@ -1,13 +1,13 @@
 import ProductHero from "./ProductHero";
-import ProductDetails from "./ProductDetails";
+import CategoryCatalogue from "./CategoryCatalogue";
+import { getPublicCategories } from "@/lib/productCatalogue.server";
 
-const Products = () => {
+export default async function Products() {
+  const categories = await getPublicCategories();
   return (
     <>
       <ProductHero />
-      <ProductDetails />
+      <CategoryCatalogue categories={categories} />
     </>
   );
-};
-
-export default Products;
+}

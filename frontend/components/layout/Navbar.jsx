@@ -1,9 +1,12 @@
-﻿"use client";
+
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import ProductCategoryMenu from "./ProductCategoryMenu";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -19,9 +22,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  const closeMenu = () => {
-    setOpen(false);
-  };
+  const closeMenu = () => setOpen(false);
 
   const isActiveLink = (href) => {
     if (href === "/") {
@@ -56,6 +57,15 @@ export default function Navbar() {
           {navLinks.map((link) => {
             const active = isActiveLink(link.href);
 
+            if (link.href === "/product") {
+              return (
+                <ProductCategoryMenu
+                  key={link.name}
+                  active={active}
+                />
+              );
+            }
+
             return (
               <li key={link.name}>
                 <Link
@@ -78,27 +88,40 @@ export default function Navbar() {
           type="button"
           onClick={() => setOpen((previousValue) => !previousValue)}
           className="flex h-10 w-10 items-center justify-center rounded-md text-black transition-colors hover:text-orange-500 md:hidden"
-          aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+          aria-label={
+            open ? "Close navigation menu" : "Open navigation menu"
+          }
           aria-expanded={open}
+          aria-controls="mobile-navigation"
         >
-          <span
-            className={
-              open
-                ? "text-[34px] leading-none"
-                : "text-[30px] leading-none"
-            }
-          >
-            {open ? "ï¿½" : "?"}
-          </span>
+          {open ? (
+            <X aria-hidden="true" size={30} />
+          ) : (
+            <Menu aria-hidden="true" size={30} />
+          )}
         </button>
       </nav>
 
       {/* Mobile Navigation */}
       {open && (
-        <div className="border-t border-black/5 bg-white px-4 py-4 shadow-md md:hidden">
+        <div
+          id="mobile-navigation"
+          className="max-h-[calc(100dvh-5rem)] overflow-y-auto border-t border-black/5 bg-white px-4 py-4 shadow-md md:hidden"
+        >
           <ul className="flex flex-col gap-5">
             {navLinks.map((link) => {
               const active = isActiveLink(link.href);
+
+              if (link.href === "/product") {
+                return (
+                  <ProductCategoryMenu
+                    key={link.name}
+                    active={active}
+                    mobile
+                    onNavigate={closeMenu}
+                  />
+                );
+              }
 
               return (
                 <li key={link.name}>

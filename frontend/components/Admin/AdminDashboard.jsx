@@ -91,7 +91,7 @@ const AdminDashboard = () => {
         clientsData,
       ] = await Promise.all([
         fetchData("/api/blogs"),
-        fetchData("/api/products"),
+        hasPermission("products", "view") ? fetchData("/api/products/admin", true) : Promise.resolve([]),
         fetchData("/api/projects"),
         fetchData("/api/careers"),
 
@@ -317,6 +317,8 @@ const AdminDashboard = () => {
         // RBAC CHANGE: Show quote details using actual quote DB field names.
         const inquiryDetails = [
           inquiry.callNumber ? `Call: ${inquiry.callNumber}` : "",
+          inquiry.enquiryType === "general" ? "General enquiry" : "",
+          inquiry.categoryName ? `Category: ${inquiry.categoryName}` : "",
           inquiry.mountType ? `Mount: ${inquiry.mountType}` : "",
           inquiry.mw ? `MW: ${inquiry.mw}` : "",
           inquiry.productName ? `Product: ${inquiry.productName}` : "",
