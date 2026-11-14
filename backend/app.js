@@ -1,3 +1,4 @@
+import { publicSeoRouter, adminSeoRouter } from "./routes/seoRoutes.js";
 import express from "express";
 import cors from "cors";
 
@@ -81,6 +82,8 @@ app.get("/", (req, res) => {
 // -------------------------------
 // API routes
 // -------------------------------
+app.use("/api/seo", publicSeoRouter);
+app.use("/api/admin/seo", adminSeoRouter);
 app.use("/api/projects", projectRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/products", productRoutes);

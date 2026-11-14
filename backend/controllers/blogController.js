@@ -1,3 +1,4 @@
+import { revisionOf } from "../utils/seoDiagnostics.js";
 import Blog from "../models/blogModel.js";
 
 const normalizeStatus = (status) => {
@@ -133,6 +134,7 @@ export const createBlog = async (req, res) => {
       status: normalizeStatus(status),
       content,
       coverImage,
+      seoUpdatedAt: metaTitle?.trim() || metaDescription?.trim() ? new Date() : undefined,
       metaTitle: metaTitle?.trim() || "",
       metaDescription: metaDescription?.trim() || "",
     });
@@ -431,6 +433,9 @@ export const updateBlog = async (req, res) => {
       });
     }
 
+    if (typeof req.body.seoRevision === "string" && req.body.seoRevision !== revisionOf(blog)) {
+      return res.status(409).json({ message: "Blog SEO changed since this editor opened. Reopen the Blog before saving." });
+    }
     const normalizedSlug = createSlug(slug);
     const normalizedCategorySlug = createSlug(categorySlug || category);
     const normalizedSubCategorySlug = subCategorySlug
@@ -465,7 +470,10 @@ export const updateBlog = async (req, res) => {
     blog.date = date;
     blog.status = normalizeStatus(status);
     blog.content = content;
-    blog.metaTitle = metaTitle?.trim() || "";
+    const nextSeoTitle = metaTitle?.trim() || "";
+    const nextSeoDescription = metaDescription?.trim() || "";
+    if ((blog.metaTitle || "") !== nextSeoTitle || (blog.metaDescription || "") !== nextSeoDescription) blog.seoUpdatedAt = new Date();
+    blog.metaTitle = nextSeoTitle;
     blog.metaDescription = metaDescription?.trim() || "";
 
     if (removeCoverImage === "true") {
@@ -491,6 +499,7 @@ export const updateBlog = async (req, res) => {
       blog: updatedBlog,
     });
   } catch (error) {
+    if (error.name === "VersionError") return res.status(409).json({ message: "Blog changed while saving. Reopen it and try again." });
     console.error("Update Blog Error:", error);
 
     return res.status(500).json({

@@ -1,3 +1,4 @@
+import { withPageSeo } from "@/lib/pageSeo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPublicProduct } from "@/lib/productCatalogue.server";
@@ -12,7 +13,7 @@ async function requireProduct(params) {
   return result;
 }
 
-export async function generateMetadata({ params }) {
+async function originalMetadata({ params }) {
   const { product } = await requireProduct(params);
   return productPageMetadata({
     title: product.name,
@@ -37,4 +38,10 @@ export default async function ProductDetailPage({ params }) {
       <ProductDetails products={[product]} detailView />
     </>
   );
+}
+export async function generateMetadata(props) {
+  const fallback = await originalMetadata(props);
+  const canonical = fallback.alternates?.canonical;
+  const path = canonical ? new URL(canonical, "https://www.zmsipl.com").pathname : null;
+  return path ? withPageSeo(path, fallback) : fallback;
 }

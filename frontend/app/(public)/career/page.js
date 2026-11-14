@@ -1,6 +1,7 @@
+import { withPageSeo } from "@/lib/pageSeo";
 import Career from '@/components/Career/Career';
 
-export const metadata = {
+const fallbackMetadata = {
   alternates: {
     canonical: "https://www.zmsipl.com/career",
   },
@@ -8,4 +9,8 @@ export const metadata = {
 
 export default function CareerPage() {
   return <Career />;
+}
+
+export async function generateMetadata() {
+  return withPageSeo('/career', fallbackMetadata);
 }

@@ -64,6 +64,9 @@ const blogSchema = new mongoose.Schema(
       default: "",
     },
 
+    // Unknown on historical records; never inferred from general updatedAt.
+    seoUpdatedAt: { type: Date },
+
     metaTitle: {
       type: String,
       trim: true,
@@ -78,6 +81,7 @@ const blogSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    optimisticConcurrency: true,
   }
 );
 

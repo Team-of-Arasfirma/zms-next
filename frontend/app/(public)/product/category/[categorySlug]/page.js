@@ -1,3 +1,4 @@
+import { withPageSeo } from "@/lib/pageSeo";
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -31,7 +32,7 @@ async function requireCategory(params) {
 }
 
 // SEO Metadata
-export async function generateMetadata({ params }) {
+async function originalMetadata({ params }) {
   const category = await requireCategory(params);
 
   return productPageMetadata({
@@ -118,4 +119,11 @@ export default async function ProductCategoryPage({
       <ProductCards products={assignedProducts} />
     </section>
   );
+}
+
+export async function generateMetadata(props) {
+  const fallback = await originalMetadata(props);
+  const canonical = fallback.alternates?.canonical;
+  const path = canonical ? new URL(canonical, "https://www.zmsipl.com").pathname : null;
+  return path ? withPageSeo(path, fallback) : fallback;
 }

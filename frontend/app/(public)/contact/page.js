@@ -1,6 +1,7 @@
+import { withPageSeo } from "@/lib/pageSeo";
 import Contact from '@/components/Contact/Contact';
 
-export const metadata = {
+const fallbackMetadata = {
   alternates: {
     canonical: "https://www.zmsipl.com/contact",
   },
@@ -8,4 +9,8 @@ export const metadata = {
 
 export default function ContactPage() {
   return <Contact />;
+}
+
+export async function generateMetadata() {
+  return withPageSeo('/contact', fallbackMetadata);
 }

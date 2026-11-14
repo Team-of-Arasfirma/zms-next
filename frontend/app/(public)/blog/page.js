@@ -1,9 +1,10 @@
+import { withPageSeo } from "@/lib/pageSeo";
 import BlogCards from "@/components/Blog/BlogCards";
 import BlogHero from "@/components/Blog/BlogHero";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
+const fallbackMetadata = {
   alternates: {
     canonical: "https://www.zmsipl.com/blog",
   },
@@ -112,4 +113,7 @@ export default async function BlogPage() {
       />
     </>
   );
+}
+export async function generateMetadata() {
+  return withPageSeo('/blog', fallbackMetadata);
 }

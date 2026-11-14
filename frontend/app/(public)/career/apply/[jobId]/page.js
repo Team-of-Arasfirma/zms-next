@@ -1,8 +1,9 @@
+import { withPageSeo } from "@/lib/pageSeo";
 import JobApply from "@/components/Career/JobApply";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
+const fallbackMetadata = {
   robots: {
     index: false,
     follow: false,
@@ -17,4 +18,8 @@ export default async function CareerApplyPage({ params }) {
   const { jobId } = await params;
 
   return <JobApply jobId={jobId} />;
+}
+export async function generateMetadata({ params }) {
+  const { jobId } = await params;
+  return withPageSeo(`/career/apply/${jobId}`, fallbackMetadata);
 }

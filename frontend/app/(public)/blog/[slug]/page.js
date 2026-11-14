@@ -1,7 +1,8 @@
+import { withBlogSeo } from "@/lib/pageSeo";
 import BlogDetails from "@/components/Blog/BlogDetails";
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+  process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 async function getBlog(slug) {
   try {
@@ -35,7 +36,7 @@ const getCanonicalPath = (blog, fallbackSlug) => {
   return `/blog/${blog?.slug || fallbackSlug}`;
 };
 
-export async function generateMetadata({ params }) {
+async function originalMetadata({ params }) {
   const { slug } = await params;
 
   const blog = await getBlog(slug);
@@ -74,4 +75,10 @@ export default async function BlogDetailPage({ params }) {
       initialBlog={blog}
     />
   );
+}
+export async function generateMetadata(props) {
+  const fallback = await originalMetadata(props);
+  const canonical = fallback.alternates?.canonical;
+  const path = canonical ? new URL(canonical, "https://www.zmsipl.com").pathname : null;
+  return path ? withBlogSeo(path, fallback) : fallback;
 }

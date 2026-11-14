@@ -11,6 +11,7 @@ export const RBAC_MODULES = [
   "inquiries",
   "clients",
   "redirects",
+  "seo",
   "users",
 ];
 

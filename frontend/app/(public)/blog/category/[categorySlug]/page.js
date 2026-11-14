@@ -1,10 +1,11 @@
+import { withPageSeo } from "@/lib/pageSeo";
 import BlogCards from "@/components/Blog/BlogCards";
 import BlogHero from "@/components/Blog/BlogHero";
 
 export const dynamic = "force-dynamic";
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+  process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 async function getBlogsByCategory(categorySlug) {
   try {
@@ -86,7 +87,7 @@ async function getSubCategories(categorySlug) {
   }
 }
 
-export async function generateMetadata({ params }) {
+async function originalMetadata({ params }) {
   const { categorySlug } = await params;
   const readableCategory = categorySlug
     .split("-")
@@ -122,4 +123,10 @@ export default async function BlogCategoryPage({ params }) {
       />
     </>
   );
+}
+export async function generateMetadata(props) {
+  const fallback = await originalMetadata(props);
+  const canonical = fallback.alternates?.canonical;
+  const path = canonical ? new URL(canonical, "https://www.zmsipl.com").pathname : null;
+  return path ? withPageSeo(path, fallback) : fallback;
 }

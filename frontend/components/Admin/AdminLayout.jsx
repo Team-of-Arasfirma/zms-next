@@ -28,6 +28,7 @@ const decodeJwtPayload = (token) => {
 };
 
 const menuItems = [
+  { name: "SEO Management", path: "/admin/seo", moduleKey: "seo" },
   { name: "Dashboard", path: "/admin/dashboard", moduleKey: "dashboard" },
   { name: "Blogs", path: "/admin/blogs", moduleKey: "blogs" },
   { name: "Products", path: "/admin/products", moduleKey: "products" },

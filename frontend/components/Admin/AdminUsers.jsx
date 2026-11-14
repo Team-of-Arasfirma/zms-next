@@ -15,6 +15,7 @@ const modules = [
   "inquiries",
   "clients",
   "redirects",
+  "seo",
   "users",
 ];
 

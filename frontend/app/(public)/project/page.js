@@ -1,6 +1,7 @@
+import { withPageSeo } from "@/lib/pageSeo";
 import Project from '@/components/Project/project';
 
-export const metadata = {
+const fallbackMetadata = {
   alternates: {
     canonical: "https://www.zmsipl.com/project",
   },
@@ -8,4 +9,8 @@ export const metadata = {
 
 export default function ProjectPage() {
   return <Project />;
+}
+
+export async function generateMetadata() {
+  return withPageSeo('/project', fallbackMetadata);
 }

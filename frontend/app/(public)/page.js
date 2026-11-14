@@ -1,3 +1,4 @@
+import { withPageSeo } from "@/lib/pageSeo";
 import Hero from "@/components/home/Hero";
 import Stats from "@/components/home/Stats";
 import About from "@/components/home/About";
@@ -11,7 +12,7 @@ import Testimonial from "@/components/home/Testimonial";
 import CTA from "@/components/home/CTA";
 
 // Home page canonical SEO
-export const metadata = {
+const fallbackMetadata = {
   alternates: {
     canonical: "https://www.zmsipl.com/",
   },
@@ -33,4 +34,7 @@ export default function HomePage() {
       <CTA />
     </section>
   );
+}
+export async function generateMetadata() {
+  return withPageSeo('/', fallbackMetadata);
 }

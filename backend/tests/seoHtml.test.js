@@ -1,0 +1,87 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import express from "express";
+import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+test("production server renders exact SEO values and restores fallback HTML", { timeout: 90000 }, async () => {
+  const app = express();
+  let mode = "override";
+  let blogTitle = "Blog source SEO";
+  let blogLegacy = false;
+  const taxonomyOverrides = new Map();
+  app.get("/api/seo", (req, res) => {
+    if (req.query.path.startsWith("/blog/category/")) return res.json(taxonomyOverrides.get(req.query.path) || {});
+    if (req.query.path === "/news/article") return res.json(blogLegacy ? { seoTitle: "Legacy Blog title", metaDescription: "Legacy Blog description" } : {});
+    if (mode === "failure") return res.sendStatus(503);
+    if (mode === "empty") return res.json({});
+    return res.json({ seoTitle: req.query.path === "/about" ? "About ZMS | Test SEO" : "Independent contact title", metaDescription: "Server rendered SEO description." });
+  });
+  const category = { _id: "507f1f77bcf86cd799439014", name: "Steel", slug: "steel", status: "Active", image: "https://example.com/steel.jpg" };
+  app.get("/api/product-categories", (req, res) => res.json([category]));
+  app.get("/api/product-categories/steel", (req, res) => res.json(category));
+  app.get("/api/products", (req, res) => res.json([{ _id: "507f1f77bcf86cd799439013", name: "Panel", slug: "panel", status: "Active", category: category._id, image: "https://example.com/panel.jpg", description: "Panel description" }]));
+  app.get("/api/blogs/article", (req, res) => res.json({ _id: "507f1f77bcf86cd799439016", title: "Article", slug: "article", category: "News", categorySlug: "news", content: "Article content", status: "Published", metaTitle: blogTitle, metaDescription: "Blog source description" }));
+  app.use((req, res) => res.json([]));
+  const api = app.listen(0, "127.0.0.1"); await new Promise(resolve => api.once("listening", resolve));
+  const frontend = fileURLToPath(new URL("../../frontend/", import.meta.url));
+  const next = fileURLToPath(new URL("../../frontend/node_modules/next/dist/bin/next", import.meta.url));
+  const port = 3197;
+  const child = spawn(process.execPath, [next, "start", "-p", String(port), "-H", "127.0.0.1"], { cwd: frontend, env: { ...process.env, API_URL: `http://127.0.0.1:${api.address().port}`, NEXT_PUBLIC_API_URL: `http://127.0.0.1:${api.address().port}` }, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
+  let log = ""; child.stdout.on("data", d => { log += d; }); child.stderr.on("data", d => { log += d; });
+  try {
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => { clearInterval(poll); reject(new Error(log || "Server startup timeout")); }, 30000);
+      const poll = setInterval(() => { if (log.includes("Ready in")) { clearTimeout(timer); clearInterval(poll); resolve(); } }, 100);
+    });
+    const html = async path => { const response = await fetch(`http://127.0.0.1:${port}${path}`, { headers: { "User-Agent": "Googlebot" } }); assert.equal(response.status, 200); return response.text(); };
+    let about = await html("/about");
+    assert.match(about, /<title>About ZMS \| Test SEO<\/title>/);
+    assert.match(about, /name="description" content="Server rendered SEO description\."/);
+    assert.match(about, /rel="canonical" href="https:\/\/www\.zmsipl\.com\/about"/);
+    assert.match(about, /property="og:title" content="About ZMS \| Test SEO"/);
+    assert.match(await html("/contact"), /<title>Independent contact title<\/title>/);
+    const product = await html("/product/panel");
+    assert.match(product, /rel="canonical" href="https:\/\/www\.zmsipl\.com\/product\/panel"/);
+    assert.match(product, /<script type="application\/ld\+json">/);
+    assert.match(product, /property="og:image" content="https:\/\/example\.com\/panel\.jpg"/);
+    assert.match(await html("/product/category/steel"), /rel="canonical" href="https:\/\/www\.zmsipl\.com\/product\/category\/steel"/);
+    assert.match(await html("/career/apply/507f1f77bcf86cd799439015"), /name="robots" content="noindex, nofollow"/);
+    let blogHtml = await html("/news/article");
+    assert.match(blogHtml, /<title>Blog source SEO \| ZMSIPL<\/title>/);
+    assert.match(blogHtml, /name="description" content="Blog source description"/);
+    assert.match(blogHtml, /property="og:title" content="Blog source SEO \| ZMSIPL"/);
+    assert.match(blogHtml, /name="twitter:title" content="Blog source SEO \| ZMSIPL"/);
+    blogTitle = "Changed in Blog Admin";
+    assert.match(await html("/blog/article"), /<title>Changed in Blog Admin \| ZMSIPL<\/title>/);
+    blogLegacy = true;
+    assert.match(await html("/news/article"), /<title>Changed in Blog Admin \| ZMSIPL<\/title>/);
+    blogLegacy = false;
+    assert.match(await html("/news/article"), /<title>Changed in Blog Admin \| ZMSIPL<\/title>/);
+    taxonomyOverrides.set("/blog/category/news", { seoTitle: "Independent category title", metaDescription: "Category description" });
+    taxonomyOverrides.set("/blog/category/news/steel", { seoTitle: "Independent subcategory title", metaDescription: "Subcategory description" });
+    const categoryHtml = await html("/blog/category/news");
+    assert.match(categoryHtml, /<title>Independent category title<\/title>/);
+    assert.match(categoryHtml, /name="description" content="Category description"/);
+    const subcategoryHtml = await html("/blog/category/news/steel");
+    assert.match(subcategoryHtml, /<title>Independent subcategory title<\/title>/);
+    assert.match(subcategoryHtml, /name="description" content="Subcategory description"/);
+    assert.match(subcategoryHtml, /rel="canonical" href="https:\/\/www\.zmsipl\.com\/blog\/category\/news\/steel"/);
+    taxonomyOverrides.delete("/blog/category/news");
+    assert.match(await html("/blog/category/news"), /<title>News Blogs \| ZMSIPL<\/title>/);
+    assert.match(await html("/blog/category/news/steel"), /<title>Independent subcategory title<\/title>/);
+    assert.match(await html("/news/article"), /<title>Changed in Blog Admin \| ZMSIPL<\/title>/);
+    taxonomyOverrides.delete("/blog/category/news/steel");
+    assert.match(await html("/blog/category/news/steel"), /<title>Steel Blogs \| ZMSIPL<\/title>/);
+    mode = "empty";
+    assert.match(await html("/product/panel"), /<title>Panel \| ZMSIPL<\/title>/);
+    about = await html("/about");
+    assert.match(about, /<title>ZMSIPL \| Zaron Metal Sections<\/title>/);
+    assert.match(await html("/"), /rel="canonical" href="https:\/\/www\.zmsipl\.com\/?"/);
+    mode = "failure";
+    assert.match(await html("/about"), /<title>ZMSIPL \| Zaron Metal Sections<\/title>/);
+  } finally {
+    child.kill(); await new Promise(resolve => { if (child.exitCode !== null) return resolve(); child.once("exit", resolve); });
+    api.closeAllConnections(); await new Promise(resolve => api.close(resolve));
+  }
+});

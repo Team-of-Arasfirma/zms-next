@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import JoditEditor from "jodit-react";
 import { hasPermission } from "../utils/permissions";
@@ -35,7 +35,17 @@ const initialFormState = {
   metaDescription: "",
 };
 
-const AdminBlogs = () => {
+const getAuthHeaders = (jsonHeaders = false) => {
+    const token = localStorage.getItem("zmsAdminToken");
+
+    return {
+      ...(jsonHeaders ? { "Content-Type": "application/json" } : {}),
+      Authorization: `Bearer ${token}`,
+    };
+  };
+
+const AdminBlogs = ({ initialEditId = "" }) => {
+  const openedFromSeo = useRef("");
   const coverImageInputRef = useRef(null);
 
   const [blogs, setBlogs] = useState([]);
@@ -50,6 +60,7 @@ const AdminBlogs = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBlogId, setEditingBlogId] = useState(null);
+  const [seoRevision, setSeoRevision] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -62,15 +73,6 @@ const AdminBlogs = () => {
   const canCreate = hasPermission("blogs", "create");
   const canEdit = hasPermission("blogs", "edit");
   const canDelete = hasPermission("blogs", "delete");
-
-  const getAuthHeaders = (jsonHeaders = false) => {
-    const token = localStorage.getItem("zmsAdminToken");
-
-    return {
-      ...(jsonHeaders ? { "Content-Type": "application/json" } : {}),
-      Authorization: `Bearer ${token}`,
-    };
-  };
 
   const createSlug = (value = "") => {
     return value
@@ -440,6 +442,7 @@ const AdminBlogs = () => {
       payload.append("date", formData.date);
       payload.append("status", formData.status);
       payload.append("content", formData.content);
+      if (isEditing) payload.append("seoRevision", seoRevision);
       payload.append("metaTitle", formData.metaTitle);
       payload.append("metaDescription", formData.metaDescription);
       payload.append("removeCoverImage", removeCoverImage ? "true" : "false");
@@ -491,7 +494,7 @@ const AdminBlogs = () => {
     }
   };
 
-  const handleEdit = async (blog) => {
+  const handleEdit = useCallback(async (blog) => {
     try {
       setMessage("");
       setError("");
@@ -526,6 +529,7 @@ const AdminBlogs = () => {
         metaTitle: fullBlog.metaTitle || "",
         metaDescription: fullBlog.metaDescription || "",
       });
+      setSeoRevision(JSON.stringify([(fullBlog.metaTitle || "").trim(), (fullBlog.metaDescription || "").trim(), fullBlog.updatedAt ? new Date(fullBlog.updatedAt).toISOString() : null, false]));
 
       setCoverImageFile(null);
       setCoverImagePreview(fullBlog.coverImage || "");
@@ -546,7 +550,20 @@ const AdminBlogs = () => {
           : "Failed to load blog details"
       );
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!initialEditId || !canEdit || openedFromSeo.current === initialEditId) return;
+    let active = true;
+    // Defer opening until after hydration; the existing edit loader remains authoritative.
+    Promise.resolve().then(() => {
+      if (!active) return;
+      openedFromSeo.current = initialEditId;
+      handleEdit({ _id: initialEditId });
+    });
+    return () => { active = false; };
+  }, [initialEditId, canEdit, handleEdit]);
+
 
   const handleDelete = async (blogId) => {
     const confirmed = window.confirm("Delete this blog?");
