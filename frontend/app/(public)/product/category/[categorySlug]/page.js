@@ -14,6 +14,7 @@ import {
 } from "@/lib/productCatalogue";
 
 import ProductCards from "@/components/Product/ProductCards";
+import SolarCategoryContent from "@/components/Product/SolarCategoryContent";
 import { productPageMetadata } from "@/lib/productSeo";
 
 // Resolve an active category.
@@ -117,6 +118,10 @@ export default async function ProductCategoryPage({
 
       {/* Dynamic Products */}
       <ProductCards products={assignedProducts} />
+
+      {category.slug === "solar-mounting-structures" && (
+        <SolarCategoryContent />
+      )}
     </section>
   );
 }
