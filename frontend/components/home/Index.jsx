@@ -1,14 +1,15 @@
 import Hero from "./Hero";
 import Stats from "./Stats";
 import About from "./About";
-import Advantage from "./Advantage";
+import Advantage from "./Advantage";CloudSnow
 import ProductPreview from "./ProductPreview";
-import Applications from "./Applications";
+// import Applications from "./Applications";
 import LatestProjects from "./LatestProjects";
 import IndustryLeaders from "./IndustryLeaders";
 import PrestigiousClients from "./PrestigiousClients";
 import Testimonial from "./Testimonial";
 import CTA from "./CTA";
+import { CloudSnow } from "lucide-react";
 function App() {
   return (
     <>
@@ -19,7 +20,7 @@ function App() {
           <About />
           <Advantage />
           <ProductPreview />
-          <Applications />
+         <Applications /> 
           <LatestProjects />
           <IndustryLeaders />
           <PrestigiousClients />

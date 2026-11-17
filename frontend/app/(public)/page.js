@@ -26,11 +26,11 @@ export default function HomePage() {
       <About />
       <Advantage />
       <ProductPreview />
-      <Applications />
+      {/* <Applications /> */}
       <LatestProjects />
       <IndustryLeaders />
       <PrestigiousClients />
-      <Testimonial />
+     {/* <Testimonial /> */}
       <CTA />
     </section>
   );

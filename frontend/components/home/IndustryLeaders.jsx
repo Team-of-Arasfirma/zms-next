@@ -8,11 +8,15 @@ const leaders = [
     id: 1,
     logo: "/assets/L-logo/jsw.png",
     name: "JSW",
+    width: 1200,
+    height: 570,
   },
   {
     id: 2,
     logo: "/assets/L-logo/tata.png",
     name: "Tata Steel",
+    width: 1080,
+    height: 1080,
   },
 ];
 
@@ -72,8 +76,8 @@ export default function IndustryLeaders() {
               <Image
                 src={leader.logo}
                 alt={leader.name}
-                width={190}
-                height={90}
+                width={leader.width}
+                height={leader.height}
                 loading="lazy"
                 quality={70}
                 className="h-auto w-auto max-h-[90px] max-w-[150px] object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-[90px] sm:max-w-[170px] md:max-h-[90px] md:max-w-[190px]"

@@ -16,8 +16,8 @@ function Footer() {
               <Image
                 src="/assets/logo/white.svg"
                 alt="Zaron Metal Sections"
-                width={170}
-                height={100}
+                width={200}
+                height={123}
                 loading="lazy"
                 className="h-auto w-full object-contain"
               />
