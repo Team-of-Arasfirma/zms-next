@@ -62,7 +62,7 @@ const contactInfo = [
   },
   {
     title: "Email Address",
-    value: ["sales@zmsipl.com", "marketing@zmsipl.com"],
+    value: ["marketing@zmsipl.com", "sales@zmsipl.com"],
     icon: <MailIcon />,
     link: "mailto:sales@zmsipl.com",
   },

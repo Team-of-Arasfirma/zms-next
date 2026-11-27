@@ -267,17 +267,18 @@ function Footer() {
 
                 <span className="flex flex-col gap-1">
                   <a
-                    href="mailto:sales@zmsipl.com"
-                    className="transition hover:text-[#ff6b2c]"
-                  >
-                    sales@zmsipl.com
-                  </a>
-
-                  <a
                     href="mailto:marketing@zmsipl.com"
                     className="transition hover:text-[#ff6b2c]"
                   >
                     marketing@zmsipl.com
+                    
+                  </a>
+
+                  <a
+                    href="mailto:sales@zmsipl.com"
+                    className="transition hover:text-[#ff6b2c]"
+                  >
+                    sales@zmsipl.com
                   </a>
                 </span>
               </li>
